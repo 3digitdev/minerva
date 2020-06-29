@@ -1,2 +1,3 @@
-black==19.10b0
-attrs==19.3.0
+black~=19.10b0
+attrs~=19.3.0
+Flask~=1.1.2
