@@ -8,4 +8,4 @@ class Note:
     url: str = attr.ib(default="")
 
     def __dict__(self):
-        return {'id': self.id, 'content': self.content, 'url': self.url}
+        return {"id": self.id, "content": self.content, "url": self.url}
