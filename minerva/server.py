@@ -30,16 +30,24 @@ def note_by_id(note_id: str):
         if request.method == "GET":
             note = mongo.find_single_note(note_id)
             if note:
-                parsed_note = Note(id=str(note['_id']), contents=note['contents'], url=note['url'])
+                parsed_note = Note(
+                    id=str(note["_id"]), contents=note["contents"], url=note["url"]
+                )
                 return make_response(parsed_note.__dict__(), 200)
-            return make_response({"error": f"Could not find a Note with the ID '{note_id}'"}, 404)
+            return make_response(
+                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
+            )
         elif request.method == "PUT":
             updated_note = Note.from_request(request.json)
             result = mongo.update_note(note_id, updated_note)
             if result:
                 return make_response(result, 200)
-            return make_response({"error": f"Could not find a Note with the ID '{note_id}'"}, 404)
+            return make_response(
+                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
+            )
         elif request.method == "DELETE":
             if mongo.delete_note(note_id) > 0:
                 return make_response({}, 204)
-            return make_response({"error": f"Could not find a Note with the ID '{note_id}'"}, 404)
+            return make_response(
+                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
+            )

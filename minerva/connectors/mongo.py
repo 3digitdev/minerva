@@ -27,7 +27,9 @@ class MongoConnector:
         results = notes.find().skip((page - 1) * count).limit(count)
         found_notes = []
         for note in results:
-            parsed_note = Note(id=str(note['_id']), contents=note['contents'], url=note['url'])
+            parsed_note = Note(
+                id=str(note["_id"]), contents=note["contents"], url=note["url"]
+            )
             found_notes.append(parsed_note.__dict__())
         return found_notes
 
@@ -42,16 +44,20 @@ class MongoConnector:
         result = notes.find_one_and_update(
             self._by_id(note_id),
             {"$set": updated_note.to_json()},
-            return_document=ReturnDocument.AFTER
+            return_document=ReturnDocument.AFTER,
         )
         if result is None:
             return result
-        return Note(id=str(result['_id']), contents=result['contents'], url=result['url']).__dict__()
+        return Note(
+            id=str(result["_id"]), contents=result["contents"], url=result["url"]
+        ).__dict__()
 
     def tag_note(self, note_id: str, tag: str) -> SingleMongoRecord:
         # If the tag already exists, a new one is not added
         notes: Collection = self.db.notes
-        return notes.find_one_and_update(self._by_id(note_id), {"$addToSet": {"tags": tag}})
+        return notes.find_one_and_update(
+            self._by_id(note_id), {"$addToSet": {"tags": tag}}
+        )
 
     def delete_note(self, note_id: str) -> int:
         notes: Collection = self.db.notes
