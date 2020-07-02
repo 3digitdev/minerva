@@ -1,53 +1,93 @@
-from flask import Flask, request, jsonify, make_response
+from typing import Type
+
+from flask import Flask, request, make_response, Response
+
+from categories.category import Category
+from categories.tags import Tag
 from connectors.mongo import MongoConnector
 from helpers.helpers import verify_request_body, BadRequestError
-
 from categories.notes import Note
+
+
+class Route:
+    def __init__(self, cat: Type[Category]):
+        self.single: str = str(cat.__name__.lower())
+        self.multi: str = self.single + "s"
+        self.category: Type[Category] = cat
+
 
 URL_BASE = "/api/v1"
 
 app = Flask(__name__)
 
 
-@app.route(f"{URL_BASE}/notes", methods=["GET", "POST"])
-def all_notes():
-    with MongoConnector() as mongo:
+def not_found(route: Route, item_id: str) -> Response:
+    return make_response(
+        {
+            "error": f"Could not find a {str(route.category.__class__)} with the ID '{item_id}'"
+        },
+        404,
+    )
+
+
+def all_items(route: Route):
+    with MongoConnector(route.category) as db:
         if request.method == "GET":
-            return make_response({"notes": mongo.find_all_notes()}, 200)
+            return make_response({route.multi: db.find_all()}, 200)
         elif request.method == "POST":
             try:
-                verify_request_body(request.json, Note.required())
+                verify_request_body(request.json, route.category.required())
             except BadRequestError as e:
                 return make_response({"error": e.msg}, 400)
-            note = Note.from_request(request.json)
-            note_id = mongo.create_note(note)
-            return make_response({"id": note_id}, 201)
+            item = route.category.from_request(request.json)
+            item_id = db.create(item)
+            return make_response({"id": item_id}, 201)
+
+
+def item_by_id(route: Route, item_id: str):
+    with MongoConnector(route.category) as db:
+        if request.method == "GET":
+            item = db.find_one(item_id)
+            if item:
+                return make_response(route.category.from_mongo(item).__dict__(), 200)
+            return not_found(route, item_id)
+        elif request.method == "PUT":
+            if not db.find_one(item_id):
+                return not_found(route, item_id)
+            updated_item = route.category.from_request(request.json)
+            result = db.update_one(item_id, updated_item)
+            if result:
+                return make_response(result, 200)
+            return not_found(route, item_id)
+        elif request.method == "DELETE":
+            if db.delete_one(item_id) > 0:
+                return make_response({}, 204)
+            return not_found(route, item_id)
+
+
+# region TAGS ROUTES
+@app.route(f"{URL_BASE}/tags", methods=["GET", "POST"])
+def all_tags():
+    return all_items(route=Route(Tag))
+
+
+@app.route(f"{URL_BASE}/tags/<string:tag_id>", methods=["GET", "PUT", "DELETE"])
+def tag_by_id(tag_id: str):
+    return item_by_id(route=Route(Tag), item_id=tag_id)
+
+
+# endregion
+
+
+# region NOTES ROUTES
+@app.route(f"{URL_BASE}/notes", methods=["GET", "POST"])
+def all_notes():
+    return all_items(route=Route(Note))
 
 
 @app.route(f"{URL_BASE}/notes/<string:note_id>", methods=["GET", "PUT", "DELETE"])
 def note_by_id(note_id: str):
-    with MongoConnector() as mongo:
-        if request.method == "GET":
-            note = mongo.find_single_note(note_id)
-            if note:
-                parsed_note = Note(
-                    id=str(note["_id"]), contents=note["contents"], url=note["url"]
-                )
-                return make_response(parsed_note.__dict__(), 200)
-            return make_response(
-                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
-            )
-        elif request.method == "PUT":
-            updated_note = Note.from_request(request.json)
-            result = mongo.update_note(note_id, updated_note)
-            if result:
-                return make_response(result, 200)
-            return make_response(
-                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
-            )
-        elif request.method == "DELETE":
-            if mongo.delete_note(note_id) > 0:
-                return make_response({}, 204)
-            return make_response(
-                {"error": f"Could not find a Note with the ID '{note_id}'"}, 404
-            )
+    return item_by_id(route=Route(Note), item_id=note_id)
+
+
+# endregion

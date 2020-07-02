@@ -2,11 +2,12 @@ from typing import List
 
 import attr
 
+from categories.category import Category
 from helpers.helpers import JsonData
 
 
 @attr.s
-class Note:
+class Note(Category):
     contents: str = attr.ib()
     url: str = attr.ib(default="")
     id: str = attr.ib(default="")
@@ -27,3 +28,7 @@ class Note:
     @staticmethod
     def required() -> List[str]:
         return ["contents"]
+
+    @staticmethod
+    def collection() -> str:
+        return "notes"

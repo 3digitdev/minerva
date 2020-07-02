@@ -1,64 +1,60 @@
-from categories.notes import Note
+from typing import Type
+
+from categories.category import Category
 from helpers.helpers import *
 from pymongo import MongoClient, ReturnDocument
-from pymongo.database import Database, Collection
+from pymongo.database import Database
 from bson.objectid import ObjectId
 
 
+def by_id(obj_id: str):
+    return {"_id": ObjectId(obj_id)}
+
+
 class MongoConnector:
+    def __init__(self, item_type: Type[Category]):
+        self.item_type = item_type
+
     def __enter__(self):
         self.client: MongoClient = MongoClient("mongodb://localhost:27017/")
         self.db: Database = self.client.minerva
+        self.collection = self.db[self.item_type.collection()]
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.client.close()
 
-    def _by_id(self, id: str):
-        return {"_id": ObjectId(id)}
+    def create(self, item: Category) -> str:
+        return str(self.collection.insert_one(item.to_json()).inserted_id)
 
-    # --- Notes --- #
-    def create_note(self, note: Note) -> str:
-        notes: Collection = self.db.notes
-        return str(notes.insert_one(note.to_json()).inserted_id)
+    def find_all(self, page: int = 1, count: int = 10) -> MultiMongoRecord:
+        results = self.collection.find().skip((page - 1) * count).limit(count)
+        found = []
+        for item in results:
+            parsed_item = self.item_type.from_mongo(item)
+            found.append(parsed_item.__dict__())
+        return found
 
-    def find_all_notes(self, page: int = 1, count: int = 10) -> MultiMongoRecord:
-        notes: Collection = self.db.notes
-        results = notes.find().skip((page - 1) * count).limit(count)
-        found_notes = []
-        for note in results:
-            parsed_note = Note(
-                id=str(note["_id"]), contents=note["contents"], url=note["url"]
-            )
-            found_notes.append(parsed_note.__dict__())
-        return found_notes
+    def find_one(self, item_id: str) -> Maybe[SingleMongoRecord]:
+        return self.collection.find_one(by_id(item_id))
 
-    def find_single_note(self, note_id: str) -> Maybe[SingleMongoRecord]:
-        notes: Collection = self.db.notes
-        return notes.find_one(self._by_id(note_id))
-
-    def update_note(self, note_id: str, updated_note: Note) -> Maybe[SingleMongoRecord]:
-        # If "url" is None and the document updated has a URL,
-        # it will be updated with an empty string
-        notes: Collection = self.db.notes
-        result = notes.find_one_and_update(
-            self._by_id(note_id),
-            {"$set": updated_note.to_json()},
+    def update_one(
+        self, item_id: str, updated_item: Category
+    ) -> Maybe[SingleMongoRecord]:
+        result = self.collection.find_one_and_update(
+            by_id(item_id),
+            {"$set": updated_item.to_json()},
             return_document=ReturnDocument.AFTER,
         )
         if result is None:
             return result
-        return Note(
-            id=str(result["_id"]), contents=result["contents"], url=result["url"]
-        ).__dict__()
+        return self.item_type.from_mongo(result).__dict__()
 
-    def tag_note(self, note_id: str, tag: str) -> SingleMongoRecord:
+    def tag_one(self, item_id: str, tag: str) -> SingleMongoRecord:
         # If the tag already exists, a new one is not added
-        notes: Collection = self.db.notes
-        return notes.find_one_and_update(
-            self._by_id(note_id), {"$addToSet": {"tags": tag}}
+        return self.collection.find_one_and_update(
+            by_id(item_id), {"$addToSet": {"tags": tag}}
         )
 
-    def delete_note(self, note_id: str) -> int:
-        notes: Collection = self.db.notes
-        return notes.delete_one(self._by_id(note_id)).deleted_count
+    def delete_one(self, item_id: str) -> int:
+        return self.collection.delete_one(by_id(item_id)).deleted_count
