@@ -10,7 +10,7 @@ Minerva is a WIP "personal database" designed to track all kinds of things in yo
 
 It is intended to be self-hosted, since much of the information stored will be private.
 Access is provided via API keys to the API serving up the data, and the data can be stored in
-a number of various DBs (initially supporting `SQLite`).
+a number of various DBs (initially supporting **MongoDB**).
 
 Interfacing with the data will be done via various UIs (mobile, webapp, TUI, etc.)
 
