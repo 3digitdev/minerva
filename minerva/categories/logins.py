@@ -4,7 +4,8 @@ import attr
 
 from categories.category import Category
 from helpers.exceptions import BadRequestError
-from helpers.helpers import JsonData
+from helpers.types import JsonData
+from helpers.validators import validate_tag_list
 
 
 @attr.s
@@ -45,7 +46,9 @@ def convert_sq_list(inputs: List[Union[JsonData, SecurityQuestion]]) -> List[Sec
         elif isinstance(sq, dict):
             sq_list.append(SecurityQuestion(**sq))
         else:
-            raise BadRequestError(f"Could not parse security questions -- was {sq.__class__}")
+            raise BadRequestError(
+                f"Could not parse security questions -- was [{sq.__class__.__name__}]"
+            )
     return sq_list
 
 
@@ -57,6 +60,8 @@ class Login(Category):
     username: str = attr.ib(default="")
     email: str = attr.ib(default="")
     security_questions: List[SecurityQuestion] = attr.ib(default=[], converter=convert_sq_list)
+    # ---
+    tags: List[str] = attr.ib(default=[], validator=validate_tag_list)
     id: str = attr.ib(default="")
 
     def __dict__(self) -> JsonData:
@@ -68,6 +73,7 @@ class Login(Category):
             "username": self.username,
             "email": self.email,
             "security_questions": [sq.__dict__() for sq in self.security_questions],
+            "tags": self.tags,
         }
 
     def to_json(self) -> JsonData:
@@ -78,11 +84,12 @@ class Login(Category):
             "username": self.username,
             "email": self.email,
             "security_questions": [sq.to_json() for sq in self.security_questions],
+            "tags": self.tags,
         }
 
     @staticmethod
     def from_request(req: JsonData) -> "Login":
-        login = Login(
+        return Login(
             application=req["application"],
             password=req["password"],
             url=req.get("url", ""),
@@ -91,8 +98,8 @@ class Login(Category):
             security_questions=[
                 SecurityQuestion.from_request(sq) for sq in req.get("security_questions", [])
             ],
+            tags=req.get("tags", []),
         )
-        return login
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:

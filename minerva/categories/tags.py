@@ -2,7 +2,7 @@ import attr
 
 from categories.category import Category
 from helpers.exceptions import BadRequestError
-from helpers.helpers import JsonData
+from helpers.types import JsonData
 
 
 @attr.s

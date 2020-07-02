@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from helpers.helpers import JsonData, SingleMongoRecord
+from helpers.types import JsonData
 
 
 class Category(metaclass=ABCMeta):
@@ -31,7 +31,7 @@ class Category(metaclass=ABCMeta):
         return NotImplemented
 
     @classmethod
-    def from_mongo(cls, record: SingleMongoRecord) -> "Category":
+    def from_mongo(cls, record: JsonData) -> "Category":
         record["id"] = str(record["_id"])
         del record["_id"]
         return cls(**record)

@@ -1,7 +1,7 @@
-from typing import Type
+from typing import Type, List
 
 from categories.category import Category
-from helpers.helpers import *
+from helpers.types import JsonData, Maybe
 from pymongo import MongoClient, ReturnDocument
 from pymongo.database import Database
 from bson.objectid import ObjectId
@@ -27,28 +27,32 @@ class MongoConnector:
     def create(self, item: Category) -> str:
         return str(self.collection.insert_one(item.to_json()).inserted_id)
 
-    def find_all(self, page: int = 1, count: int = 10) -> MultiMongoRecord:
+    def find_all(self, page: int = 1, count: int = 10) -> List[Category]:
         results = self.collection.find().skip((page - 1) * count).limit(count)
-        found = []
-        for item in results:
-            parsed_item = self.item_type.from_mongo(item)
-            found.append(parsed_item.__dict__())
-        return found
+        return [self.item_type.from_mongo(item) for item in results]
 
-    def find_one(self, item_id: str) -> Maybe[SingleMongoRecord]:
-        return self.collection.find_one(by_id(item_id))
+    def find_all_no_limit(self) -> List[Category]:
+        results = self.collection.find()
+        return [self.item_type.from_mongo(item) for item in results]
 
-    def update_one(self, item_id: str, updated_item: Category) -> Maybe[SingleMongoRecord]:
+    def find_one(self, item_id: str) -> Maybe[Category]:
+        result = self.collection.find_one(by_id(item_id))
+        if not result:
+            return None
+        return self.item_type.from_mongo(result)
+
+    def update_one(self, item_id: str, updated_item: Category) -> Maybe[Category]:
         result = self.collection.find_one_and_update(
             by_id(item_id), {"$set": updated_item.to_json()}, return_document=ReturnDocument.AFTER,
         )
         if result is None:
             return result
-        return self.item_type.from_mongo(result).__dict__()
+        return self.item_type.from_mongo(result)
 
-    def tag_one(self, item_id: str, tag: str) -> SingleMongoRecord:
+    def tag_one(self, item_id: str, tag: str) -> Category:
         # If the tag already exists, a new one is not added
-        return self.collection.find_one_and_update(by_id(item_id), {"$addToSet": {"tags": tag}})
+        result = self.collection.find_one_and_update(by_id(item_id), {"$addToSet": {"tags": tag}})
+        return self.item_type.from_mongo(result)
 
     def delete_one(self, item_id: str) -> int:
         return self.collection.delete_one(by_id(item_id)).deleted_count
