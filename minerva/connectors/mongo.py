@@ -7,21 +7,21 @@ from pymongo.database import Database
 from bson.objectid import ObjectId
 
 
-def by_id(obj_id: str):
+def by_id(obj_id: str) -> JsonData:
     return {"_id": ObjectId(obj_id)}
 
 
 class MongoConnector:
-    def __init__(self, item_type: Type[Category]):
+    def __init__(self, item_type: Type[Category]) -> None:
         self.item_type = item_type
 
-    def __enter__(self):
+    def __enter__(self) -> "MongoConnector":
         self.client: MongoClient = MongoClient("mongodb://localhost:27017/")
         self.db: Database = self.client.minerva
         self.collection = self.db[self.item_type.collection()]
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.client.close()
 
     def create(self, item: Category) -> str:
@@ -38,13 +38,9 @@ class MongoConnector:
     def find_one(self, item_id: str) -> Maybe[SingleMongoRecord]:
         return self.collection.find_one(by_id(item_id))
 
-    def update_one(
-        self, item_id: str, updated_item: Category
-    ) -> Maybe[SingleMongoRecord]:
+    def update_one(self, item_id: str, updated_item: Category) -> Maybe[SingleMongoRecord]:
         result = self.collection.find_one_and_update(
-            by_id(item_id),
-            {"$set": updated_item.to_json()},
-            return_document=ReturnDocument.AFTER,
+            by_id(item_id), {"$set": updated_item.to_json()}, return_document=ReturnDocument.AFTER,
         )
         if result is None:
             return result
@@ -52,9 +48,7 @@ class MongoConnector:
 
     def tag_one(self, item_id: str, tag: str) -> SingleMongoRecord:
         # If the tag already exists, a new one is not added
-        return self.collection.find_one_and_update(
-            by_id(item_id), {"$addToSet": {"tags": tag}}
-        )
+        return self.collection.find_one_and_update(by_id(item_id), {"$addToSet": {"tags": tag}})
 
     def delete_one(self, item_id: str) -> int:
         return self.collection.delete_one(by_id(item_id)).deleted_count

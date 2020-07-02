@@ -8,11 +8,11 @@ class Category(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def __dict__(self):
+    def __dict__(self) -> JsonData:
         return NotImplemented
 
     @abstractmethod
-    def to_json(self):
+    def to_json(self) -> JsonData:
         return NotImplemented
 
     @staticmethod

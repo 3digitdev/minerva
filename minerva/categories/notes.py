@@ -11,10 +11,10 @@ class Note(Category):
     url: str = attr.ib(default="")
     id: str = attr.ib(default="")
 
-    def __dict__(self):
+    def __dict__(self) -> JsonData:
         return {"_id": self.id, "contents": self.contents, "url": self.url}
 
-    def to_json(self):
+    def to_json(self) -> JsonData:
         return {"contents": self.contents, "url": self.url}
 
     @staticmethod
@@ -29,9 +29,7 @@ class Note(Category):
         required = ["contents"]
         for field in required:
             if field not in body:
-                raise BadRequestError(
-                    f"Invalid request -- missing field '{field}' in Note"
-                )
+                raise BadRequestError(f"Invalid request -- missing field '{field}' in Note")
 
     @staticmethod
     def collection() -> str:

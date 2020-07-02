@@ -10,10 +10,10 @@ class Tag(Category):
     name: str = attr.ib()
     id: str = attr.ib(default="")
 
-    def __dict__(self):
+    def __dict__(self) -> JsonData:
         return {"_id": self.id, "name": self.name}
 
-    def to_json(self):
+    def to_json(self) -> JsonData:
         return {"name": self.name}
 
     @staticmethod
@@ -25,9 +25,7 @@ class Tag(Category):
         required = ["name"]
         for field in required:
             if field not in body:
-                raise BadRequestError(
-                    f"Invalid request -- missing field '{field}' in Tag"
-                )
+                raise BadRequestError(f"Invalid request -- missing field '{field}' in Tag")
 
     @staticmethod
     def collection() -> str:
