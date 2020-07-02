@@ -24,7 +24,7 @@ app = Flask(__name__)
 def not_found(route: Route, item_id: str) -> Response:
     return make_response(
         {
-            "error": f"Could not find a {str(route.category.__class__)} with the ID '{item_id}'"
+            "error": f"Could not find a {str(route.category.__name__)} with the ID '{item_id}'"
         },
         404,
     )
