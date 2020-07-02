@@ -1,8 +1,7 @@
-from typing import List
-
 import attr
 
 from categories.category import Category
+from helpers.exceptions import BadRequestError
 from helpers.helpers import JsonData
 
 
@@ -22,8 +21,13 @@ class Tag(Category):
         return Tag(name=req["name"])
 
     @staticmethod
-    def required() -> List[str]:
-        return ["name"]
+    def verify_request_body(body: JsonData) -> None:
+        required = ["name"]
+        for field in required:
+            if field not in body:
+                raise BadRequestError(
+                    f"Invalid request -- missing field '{field}' in Tag"
+                )
 
     @staticmethod
     def collection() -> str:

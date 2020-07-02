@@ -1,4 +1,3 @@
-from typing import List
 from abc import ABCMeta, abstractmethod
 
 from helpers.helpers import JsonData, SingleMongoRecord
@@ -23,7 +22,7 @@ class Category(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def required() -> List[str]:
+    def verify_request_body(body: JsonData) -> None:
         return NotImplemented
 
     @staticmethod
