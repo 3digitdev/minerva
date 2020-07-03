@@ -4,8 +4,11 @@ from flask import Flask, request, make_response, Response
 
 from categories.category import Category
 from categories.dates import Date
+from categories.employments import Employment
+from categories.housings import Housing
 from categories.links import Link
 from categories.logins import Login
+from categories.recipes import Recipe
 from categories.tags import Tag
 from connectors.mongo import MongoConnector
 from categories.notes import Note
@@ -136,6 +139,48 @@ def all_links():
 @app.route(f"{URL_BASE}/links/<string:link_id>", methods=["GET", "PUT", "DELETE"])
 def link_by_id(link_id: str):
     return Route.build(Link).item_by_id(item_id=link_id)
+
+
+# endregion
+
+
+# region HOUSING HISTORY ROUTES
+@app.route(f"{URL_BASE}/housing", methods=["GET", "POST"])
+def all_housing():
+    return Route.build(Housing).all_items()
+
+
+@app.route(f"{URL_BASE}/housing/<string:house_id>", methods=["GET", "PUT", "DELETE"])
+def house_by_id(house_id: str):
+    return Route.build(Housing).item_by_id(item_id=house_id)
+
+
+# endregion
+
+
+# region EMPLOYMENT HISTORY ROUTES
+@app.route(f"{URL_BASE}/employment", methods=["GET", "POST"])
+def all_employment():
+    return Route.build(Employment).all_items()
+
+
+@app.route(f"{URL_BASE}/employment/<string:job_id>", methods=["GET", "PUT", "DELETE"])
+def employment_by_id(job_id: str):
+    return Route.build(Employment).item_by_id(item_id=job_id)
+
+
+# endregion
+
+
+# region RECIPE ROUTES
+@app.route(f"{URL_BASE}/recipes", methods=["GET", "POST"])
+def all_recipes():
+    return Route.build(Recipe).all_items()
+
+
+@app.route(f"{URL_BASE}/recipes/<string:recipe_id>", methods=["GET", "PUT", "DELETE"])
+def recipe_by_id(recipe_id: str):
+    return Route.build(Recipe).item_by_id(item_id=recipe_id)
 
 
 # endregion
