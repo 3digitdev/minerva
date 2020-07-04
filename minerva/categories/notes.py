@@ -24,6 +24,7 @@ class Note(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Note":
+        Note.verify_request_body(req)
         return Note(contents=req["contents"], url=req.get("url", ""), tags=req.get("tags", []))
 
     @staticmethod

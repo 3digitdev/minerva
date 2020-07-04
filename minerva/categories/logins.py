@@ -21,6 +21,7 @@ class SecurityQuestion(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "SecurityQuestion":
+        SecurityQuestion.verify_request_body(req)
         return SecurityQuestion(question=req.get("question", ""), answer=req.get("answer", ""))
 
     @staticmethod
@@ -89,6 +90,7 @@ class Login(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Login":
+        Login.verify_request_body(req)
         return Login(
             application=req["application"],
             password=req["password"],

@@ -29,7 +29,28 @@ class NotesTests(CategoriesTestsBase):
         new_id = self.assertFieldIn(response, field="id")
         self.ids_to_cleanup.append(new_id)
 
-    # TODO: UNHAPPY PATHS
+    def text_create_note_missing_required_field(self):
+        self.verify_response_code(
+            self.app.post("/api/v1/notes", json={"url": "speedrun.com", "tags": []}), 404
+        )
+
+    def test_create_note_missing_optional_field_is_empty(self):
+        response = self.verify_response_code(
+            self.app.post(
+                "/api/v1/notes", json={"contents": "TEST_CREATE_NOTE_MISSING_URL", "tags": []}
+            ),
+            201,
+        )
+        new_id = self.assertFieldIn(response, field="id")
+        self.ids_to_cleanup.append(new_id)
+        note = self.assertItemExists(new_id, item_type=Note)
+        self.assertIsInstance(note, Note, f"Expected '{new_id}' to yield a Note!")
+        assert isinstance(note, Note)  # Shouldn't have to do this...
+        self.assertEqual(note.url, "", f"Expected the url to be empty, but was '{note.url}'")
+
+    def test_create_note_missing_body(self):
+        self.verify_response_code(self.app.post("/api/v1/notes"), 400)
+
     # endregion
 
     # region Read
@@ -45,7 +66,9 @@ class NotesTests(CategoriesTestsBase):
         contents = self.assertFieldIn(response, field="contents")
         self.assertEqual(contents, "First Note", f"Unexpected contents '{contents}")
 
-    # TODO: UNHAPPY PATHS
+    def test_get_single_nonexistent_note(self):
+        self.verify_response_code(self.app.get("/api/v1/notes/5f0113731c990801cc5d3240"), 404)
+
     # endregion
 
     # region Update
@@ -70,7 +93,53 @@ class NotesTests(CategoriesTestsBase):
             url, self.test_notes[0]["url"], "'url' field was updated but shouldn't have been"
         )
 
-    # TODO: UNHAPPY PATHS
+    def test_update_note_extra_field(self):
+        # TODO:  Right now this test is tuned to pass and ignore the field.
+        #        I want to eventually get this so it errors if there's unexpected fields.
+        response = self.verify_response_code(
+            self.app.put(
+                f"/api/v1/notes/{self.ids_to_cleanup[0]}",
+                json={
+                    "contents": "Update with extra fields",
+                    "url": self.test_notes[0]["url"],
+                    "tags": [],
+                    "foo": "bar",
+                },
+            ),
+            200,
+        )
+        contents = self.assertFieldIn(response, field="contents")
+        self.assertEqual(
+            contents, "Update with extra fields", "'contents' field did not update correctly"
+        )
+        self.assertNotIn(
+            "foo", response, f"Expected 'foo' field to not be in response body -- {response}"
+        )
+
+    def test_update_note_missing_required_field(self):
+        self.verify_response_code(
+            self.app.put(
+                f"/api/v1/notes/{self.ids_to_cleanup[0]}",
+                json={"url": self.test_notes[0]["url"], "tags": []},
+            ),
+            400,
+        )
+
+    def test_update_note_missing_optional_field_is_empty(self):
+        response = self.verify_response_code(
+            self.app.put(
+                f"/api/v1/notes/{self.ids_to_cleanup[0]}",
+                json={"contents": "Update with extra fields", "tags": [], "foo": "bar"},
+            ),
+            200,
+        )
+        contents = self.assertFieldIn(response, field="contents")
+        self.assertEqual(
+            contents, "Update with extra fields", "'contents' field did not update correctly"
+        )
+        url = self.assertFieldIn(response, field="url")
+        self.assertEqual(url, "", f"Expected 'url' field to be empty but it was '{url}'")
+
     # endregion
 
     # region Delete
@@ -83,5 +152,7 @@ class NotesTests(CategoriesTestsBase):
         response = self.verify_response_code(self.app.delete(f"/api/v1/notes/{new_id}"), 204)
         self.assertEqual(response, {}, f"Expected empty response -- {response}")
 
-    # TODO: UNHAPPY PATHS
+    def test_delete_nonexistent_note(self):
+        self.verify_response_code(self.app.delete("/api/v1/notes/5f0113731c990801cc5d3240"), 404)
+
     # endregion

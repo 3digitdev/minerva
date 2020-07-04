@@ -25,6 +25,7 @@ class Link(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Link":
+        Link.verify_request_body(req)
         return Link(
             name=req["name"], url=req["url"], notes=req.get("notes", []), tags=req.get("tags", [])
         )

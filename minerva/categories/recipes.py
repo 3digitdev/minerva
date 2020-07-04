@@ -35,6 +35,7 @@ class Ingredient(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Ingredient":
+        Recipe.verify_request_body(req)
         return Ingredient(amount=req["amount"], item=req["item"])
 
     @staticmethod
@@ -92,6 +93,7 @@ class Recipe(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Recipe":
+        Recipe.verify_request_body(req)
         return Recipe(
             name=req["name"],
             ingredients=[Ingredient.from_request(i) for i in req["ingredients"]],

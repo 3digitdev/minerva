@@ -43,6 +43,7 @@ class Address(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Address":
+        Address.verify_request_body(req)
         return Address(
             number=req["number"],
             street=req["street"],

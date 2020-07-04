@@ -71,6 +71,7 @@ class Date(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Date":
+        Date.verify_request_body(req)
         return Date(
             name=req["name"],
             day=req["day"],

@@ -46,6 +46,7 @@ class Housing(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Housing":
+        Housing.verify_request_body(req)
         return Housing(
             address=Address.from_request(req["address"]),
             start_month=req["start_month"],

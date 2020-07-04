@@ -43,3 +43,12 @@ class CategoriesTestsBase(unittest.TestCase):
     def assertFieldIn(self, response: JsonData, *, field: str):
         self.assertIn(field, response, f"Expected '{field}' field in response body -- {response}")
         return response[field]
+
+    def assertItemExists(self, item_id: str, *, item_type: Type[Category]) -> Category:
+        with MongoConnector(self.item_type, is_test=True) as db:
+            item = db.find_one(item_id)
+            self.assertIsNotNone(
+                item,
+                f"{item_type.__class__.__name__} with the id '{item_id}' was not found in Mongo",
+            )
+        return item

@@ -31,6 +31,7 @@ class Employer(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Employer":
+        Employer.verify_request_body(req)
         return Employer(
             address=Address.from_request(req["address"]),
             phone=req["phone"],
@@ -78,6 +79,7 @@ class Employment(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Employment":
+        Employment.verify_request_body(req)
         return Employment(
             title=req["title"],
             salary=req["salary"],

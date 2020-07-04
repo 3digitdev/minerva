@@ -18,6 +18,7 @@ class Tag(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Tag":
+        Tag.verify_request_body(req)
         return Tag(name=req["name"])
 
     @staticmethod
