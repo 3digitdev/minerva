@@ -1,18 +1,24 @@
-import pytest
-from minerva import create_app
+import mongomock
+
+from .test_categories_base import CategoriesTestsBase
 
 
-@pytest.fixture
-def app():
-    app = create_app({"TESTING": True})
-    yield app
+class NotesTests(CategoriesTestsBase):
+    @mongomock.patch(servers=(("localhost", 27017),))
+    def setUp(self) -> None:
+        super().setUp()
 
+    def tearDown(self) -> None:
+        super().tearDown()
 
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-
-def test_basic(client):
-    response = client.get("/api/v1/notes")
-    print(response)
+    @mongomock.patch(servers=(("localhost", 27017),))
+    def test_get_all_notes(self):
+        response = self.app.get("/api/v1/notes")
+        self.assertEqual(
+            response.status_code,
+            200,
+            f"Expected 200 status code, got {response.status_code} -- {response.json}",
+        )
+        self.assertIn(
+            "notes", response.json, f"Expected 'notes' to be in response body -- {response.json}"
+        )

@@ -4,7 +4,10 @@ init:
 	python3 -m pip install -r requirements.txt
 
 test:
-	# TODO
+	python3 -m unittest -vb tests/*.py
+
+clean:
+	rm -rf tests/__pycache__
 
 lint:
 	python3 -m black minerva
