@@ -2,10 +2,10 @@ from typing import List
 
 import attr
 
-from categories.category import Category
-from helpers.exceptions import BadRequestError
-from helpers.types import JsonData
-from helpers.validators import validate_tag_list
+from .category import Category
+from ..helpers.exceptions import BadRequestError
+from ..helpers.types import JsonData
+from ..helpers.validators import validate_tag_list
 
 
 @attr.s

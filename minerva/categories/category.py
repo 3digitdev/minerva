@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from helpers.types import JsonData
+from ..helpers.types import JsonData
 
 
 class Category(metaclass=ABCMeta):

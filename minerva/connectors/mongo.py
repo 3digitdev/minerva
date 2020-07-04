@@ -1,7 +1,7 @@
 from typing import Type, List
 
-from categories.category import Category
-from helpers.types import JsonData, Maybe
+from ..categories.category import Category
+from ..helpers.types import JsonData, Maybe
 from pymongo import MongoClient, ReturnDocument
 from pymongo.database import Database
 from bson.objectid import ObjectId

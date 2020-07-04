@@ -1,8 +1,8 @@
 import attr
 
-from categories.category import Category
-from helpers.exceptions import BadRequestError
-from helpers.types import JsonData
+from .category import Category
+from ..helpers.exceptions import BadRequestError
+from ..helpers.types import JsonData
 
 
 @attr.s

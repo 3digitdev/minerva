@@ -1,6 +1,6 @@
-from categories.tags import Tag
-from connectors.mongo import MongoConnector
-from helpers.exceptions import BadRequestError
+from ..categories.tags import Tag
+from ..connectors.mongo import MongoConnector
+from .exceptions import BadRequestError
 
 
 def validate_tag_list(instance, attr, value) -> None:
