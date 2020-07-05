@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from enum import Enum
 
 import attr
@@ -7,6 +7,18 @@ from .category import Category
 from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
+
+
+def ingredient_converter(
+    ingredients: Union[List["Ingredient"], List[JsonData]]
+) -> List["Ingredient"]:
+    final = []
+    for i in ingredients:
+        if isinstance(i, dict):
+            final.append(Ingredient(**i))
+        elif isinstance(i, Ingredient):
+            final.append(i)
+    return final
 
 
 class RecipeType(str, Enum):
@@ -35,7 +47,7 @@ class Ingredient(Category):
 
     @staticmethod
     def from_request(req: JsonData) -> "Ingredient":
-        Recipe.verify_request_body(req)
+        Ingredient.verify_request_body(req)
         return Ingredient(amount=req["amount"], item=req["item"])
 
     @staticmethod
@@ -53,7 +65,7 @@ class Ingredient(Category):
 @attr.s
 class Recipe(Category):
     name: str = attr.ib()
-    ingredients: List[Ingredient] = attr.ib()
+    ingredients: List[Ingredient] = attr.ib(converter=ingredient_converter)
     instructions: List[str] = attr.ib()
     recipe_type: RecipeType = attr.ib()
     cooking_style: str = attr.ib(default="")
