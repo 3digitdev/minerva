@@ -73,7 +73,7 @@ class LinksTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/links/{self.ids_to_cleanup[0]}"), 200
         )
         name = self.assertFieldIn(response, field="name")
-        self.assertEqual(name, "First Link", f"Unexpected contents '{name}")
+        self.assertEqual(name, "First Link", f"Unexpected contents '{name}'")
 
     def test_get_single_nonexistent_link(self):
         self.verify_response_code(self.app.get("/api/v1/links/5f0113731c990801cc5d3240"), 404)

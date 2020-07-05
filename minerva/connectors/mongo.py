@@ -2,6 +2,7 @@ from typing import Type, List
 from pymongo import MongoClient, ReturnDocument
 from pymongo.database import Database
 from bson.objectid import ObjectId
+from datetime import date
 
 from ..categories.category import Category
 from ..helpers.types import JsonData, Maybe
@@ -62,3 +63,10 @@ class MongoConnector:
 
     def delete_all(self) -> int:
         return self.collection.delete_many({}).deleted_count
+
+    def get_today_events(self) -> Maybe[List[Category]]:
+        today = date.today()
+        result = self.collection.find({"month": today.strftime("%m"), "day": today.strftime("%d")})
+        if result is None:
+            return None
+        return [self.item_type.from_mongo(event) for event in result]

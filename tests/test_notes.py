@@ -65,7 +65,7 @@ class NotesTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/notes/{self.ids_to_cleanup[0]}"), 200
         )
         contents = self.assertFieldIn(response, field="contents")
-        self.assertEqual(contents, "First Note", f"Unexpected contents '{contents}")
+        self.assertEqual(contents, "First Note", f"Unexpected contents '{contents}'")
 
     def test_get_single_nonexistent_note(self):
         self.verify_response_code(self.app.get("/api/v1/notes/5f0113731c990801cc5d3240"), 404)

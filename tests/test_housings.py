@@ -197,7 +197,7 @@ class HousingsTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/housing/{self.ids_to_cleanup[0]}"), 200
         )
         start_month = self.assertFieldIn(response, field="start_month")
-        self.assertEqual(start_month, "1", f"Unexpected start_month '{start_month}")
+        self.assertEqual(start_month, "1", f"Unexpected start_month '{start_month}'")
 
     def test_get_single_nonexistent_housing(self):
         self.verify_response_code(self.app.get("/api/v1/housing/5f0113731c990801cc5d3240"), 404)

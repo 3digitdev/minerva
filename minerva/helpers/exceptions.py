@@ -10,6 +10,11 @@ class BadRequestError(HttpError):
         super().__init__(message, code=400)
 
 
+class NotFoundError(HttpError):
+    def __init__(self, message):
+        super().__init__(message, code=404)
+
+
 class InternalServerError(HttpError):
     def __init__(self, message):
         super().__init__(message, code=500)

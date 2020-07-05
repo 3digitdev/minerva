@@ -108,7 +108,7 @@ class LoginsTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/logins/{self.ids_to_cleanup[0]}"), 200
         )
         application = self.assertFieldIn(response, field="application")
-        self.assertEqual(application, "First App", f"Unexpected application '{application}")
+        self.assertEqual(application, "First App", f"Unexpected application '{application}'")
 
     def test_get_single_nonexistent_login(self):
         self.verify_response_code(self.app.get("/api/v1/logins/5f0113731c990801cc5d3240"), 404)

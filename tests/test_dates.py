@@ -1,3 +1,5 @@
+from datetime import date
+
 from minerva import MongoConnector
 from minerva.categories.dates import Date
 from .test_categories_base import CategoriesTestsBase
@@ -75,7 +77,7 @@ class DatesTests(CategoriesTestsBase):
             self.app.post(
                 "/api/v1/dates",
                 json={
-                    "name": "A Bat Mitzvah",
+                    "name": "An Anniversary",
                     "day": "25",
                     "month": "4",
                     "subject": "Mom and Dad",
@@ -95,6 +97,86 @@ class DatesTests(CategoriesTestsBase):
     def test_create_date_missing_body(self):
         self.verify_response_code(self.app.post("/api/v1/dates"), 400)
 
+    def test_create_date_invalid_day(self):
+        self.verify_response_code(
+            self.app.post(
+                "/api/v1/dates",
+                json={
+                    "name": "An Anniversary",
+                    "day": "75",  # Day out of 1-31 range
+                    "month": "4",
+                    "subject": "Mom and Dad",
+                    "notes": ["don't forget", "buy them a gift"],
+                    "tags": [],
+                },
+            ),
+            400,
+        )
+
+    def test_create_date_invalid_month(self):
+        self.verify_response_code(
+            self.app.post(
+                "/api/v1/dates",
+                json={
+                    "name": "An Anniversary",
+                    "day": "5",
+                    "month": "34",  # Month out of 1-12 range
+                    "subject": "Mom and Dad",
+                    "notes": ["don't forget", "buy them a gift"],
+                    "tags": [],
+                },
+            ),
+            400,
+        )
+
+    def test_create_date_month_day_padding(self):
+        response = self.verify_response_code(
+            self.app.post(
+                "/api/v1/dates",
+                json={
+                    "name": "A Bat Mitzvah",
+                    "day": "5",
+                    "month": "4",
+                    "year": "1924",
+                    "subject": "Mom and Dad",
+                    "notes": ["don't forget", "buy them a gift"],
+                    "tags": [],
+                },
+            ),
+            201,
+        )
+        new_id = self.assertFieldIn(response, field="id")
+        self.ids_to_cleanup.append(new_id)
+        response = self.verify_response_code(self.app.get(f"/api/v1/dates/{new_id}"), 200)
+        day = self.assertFieldIn(response, field="day")
+        self.assertEqual(day, "05", f"Unexpected day '{day}'")
+        month = self.assertFieldIn(response, field="month")
+        self.assertEqual(month, "04", f"Unexpected month '{month}'")
+
+    def test_create_date_padding_no_pad_over_ten(self):
+        response = self.verify_response_code(
+            self.app.post(
+                "/api/v1/dates",
+                json={
+                    "name": "A Bat Mitzvah",
+                    "day": "25",
+                    "month": "11",
+                    "year": "1924",
+                    "subject": "Mom and Dad",
+                    "notes": ["don't forget", "buy them a gift"],
+                    "tags": [],
+                },
+            ),
+            201,
+        )
+        new_id = self.assertFieldIn(response, field="id")
+        self.ids_to_cleanup.append(new_id)
+        response = self.verify_response_code(self.app.get(f"/api/v1/dates/{new_id}"), 200)
+        day = self.assertFieldIn(response, field="day")
+        self.assertEqual(day, "25", f"Unexpected day '{day}'")
+        month = self.assertFieldIn(response, field="month")
+        self.assertEqual(month, "11", f"Unexpected month '{month}'")
+
     # endregion
 
     # region Read
@@ -108,7 +190,7 @@ class DatesTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/dates/{self.ids_to_cleanup[0]}"), 200
         )
         name = self.assertFieldIn(response, field="name")
-        self.assertEqual(name, "An Anniversary", f"Unexpected name '{name}")
+        self.assertEqual(name, "An Anniversary", f"Unexpected name '{name}'")
 
     def test_get_single_nonexistent_date(self):
         self.verify_response_code(self.app.get("/api/v1/dates/5f0113731c990801cc5d3240"), 404)
@@ -125,7 +207,7 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "4",
                     "year": self.test_dates[0]["year"],
-                    "subject": "Mom and Dad",
+                    "subject": "Sister",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -147,8 +229,8 @@ class DatesTests(CategoriesTestsBase):
                     "name": "A Quincenera",
                     "day": "25",
                     "month": "4",
-                    "year": "1924",
-                    "subject": "Mom and Dad",
+                    "year": "2016",
+                    "subject": "Sister",
                     "notes": ["don't forget", "buy them a gift"],
                     "foo": "bar",  # Extra field, should throw error
                     "tags": [],
@@ -201,7 +283,7 @@ class DatesTests(CategoriesTestsBase):
             new_id = db.create(
                 Date.from_request(
                     {
-                        "name": "A Bat Mitzvah",
+                        "name": "An Anniversary",
                         "day": "25",
                         "month": "4",
                         "year": "1924",
@@ -217,5 +299,37 @@ class DatesTests(CategoriesTestsBase):
 
     def test_delete_nonexistent_date(self):
         self.verify_response_code(self.app.delete("/api/v1/dates/5f0113731c990801cc5d3240"), 404)
+
+    # endregion
+
+    # region Miscellaneous
+    def test_get_today_dates_empty(self):
+        self.verify_response_code(self.app.get("/api/v1/dates/today"), 404)
+
+    def test_get_today_dates_found_one(self):
+        today = date.today()
+        with MongoConnector(Date, is_test=True) as db:
+            new_id = db.create(
+                Date.from_request(
+                    {
+                        "name": "An Anniversary",
+                        "day": today.strftime("%d"),
+                        "month": today.strftime("%m"),
+                        "year": "1924",
+                        "subject": "Mom and Dad",
+                        "notes": ["don't forget", "buy them a gift"],
+                        "tags": [],
+                    }
+                )
+            )
+            self.ids_to_cleanup.append(new_id)
+        response = self.verify_response_code(self.app.get("/api/v1/dates/today"), 200)
+        dates = self.assertFieldIn(response, field="dates")
+        self.assertEqual(len(dates), 1, f"Expected only 1 Date returned -- {response}")
+        self.assertEqual(
+            dates[0]["name"],
+            "An Anniversary",
+            f"Expected 'An Anniversary' for the name -- {response}",
+        )
 
     # endregion

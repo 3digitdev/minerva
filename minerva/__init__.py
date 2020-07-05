@@ -1,5 +1,5 @@
 import os
-from typing import Type
+from typing import Type, List
 
 from flask import Flask, request, make_response, Response
 
@@ -13,7 +13,8 @@ from .categories.recipes import Recipe
 from .categories.tags import Tag
 from .connectors.mongo import MongoConnector
 from .categories.notes import Note
-from .helpers.exceptions import HttpError, BadRequestError
+from .helpers.exceptions import HttpError, BadRequestError, NotFoundError
+from .helpers.types import Maybe
 
 URL_BASE = "/api/v1"
 TESTING = False
@@ -130,6 +131,19 @@ def create_app(test_config=None):
     @app.route(f"{URL_BASE}/dates", methods=["GET", "POST"])
     def all_dates():
         return Route.build(Date, is_test).all_items()
+
+    # This must be before "by id" to avoid path conflicts!
+    @app.route(f"{URL_BASE}/dates/today", methods=["GET"])
+    def get_today_events():
+        try:
+            if request.method == "GET":
+                with MongoConnector(Date, is_test) as db:
+                    dates: Maybe[List[Date]] = db.get_today_events()
+                    if not dates:
+                        raise NotFoundError("No events in the database occur today")
+                    return make_response({"dates": [d.__dict__() for d in dates]}, 200)
+        except HttpError as e:
+            return make_response({"error": e.msg}, e.code)
 
     @app.route(f"{URL_BASE}/dates/<string:date_id>", methods=["GET", "PUT", "DELETE"])
     def date_by_id(date_id: str):

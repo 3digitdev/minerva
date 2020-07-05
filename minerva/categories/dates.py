@@ -18,6 +18,19 @@ def day_validator(instance, attr, value) -> None:
         raise BadRequestError(f"Could not convert 'day' value of '{value}' to an integer")
 
 
+def num_padding(value: str) -> str:
+    try:
+        num = int(value)
+        if num < 10:
+            return f"0{num}"
+        else:
+            return str(num)
+    except ValueError:
+        # The validator will catch these -- this allows optional fields that are empty strings
+        # to use this converter function and not bomb out.
+        return value
+
+
 def month_validator(instance, attr, value) -> None:
     try:
         month_num = int(value)
@@ -39,8 +52,8 @@ def year_validator(instance, attr, value) -> None:
 @attr.s
 class Date(Category):
     name: str = attr.ib()
-    day: str = attr.ib(validator=day_validator)
-    month: str = attr.ib(validator=month_validator)
+    day: str = attr.ib(validator=day_validator, converter=num_padding)
+    month: str = attr.ib(validator=month_validator, converter=num_padding)
     year: str = attr.ib(default="", validator=year_validator)
     subject: str = attr.ib(default="")
     notes: List[str] = attr.ib(default=[])

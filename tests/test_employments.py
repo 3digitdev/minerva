@@ -23,6 +23,10 @@ class EmploymentsTests(CategoriesTestsBase):
                     "phone": "+12345678900",
                     "supervisor": "Santa",
                 },
+                "start_month": "1",
+                "start_year": "2015",
+                "end_month": "2",
+                "end_year": "2019",
                 "tags": [],
             },
             {
@@ -40,6 +44,10 @@ class EmploymentsTests(CategoriesTestsBase):
                     "phone": "+12345678900",
                     "supervisor": "",
                 },
+                "start_month": "1",
+                "start_year": "2015",
+                "end_month": "",
+                "end_year": "",
                 "tags": [],
             },
         ]
@@ -70,6 +78,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         "phone": "+12345678900",
                         "supervisor": "Santa",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -96,6 +108,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         "phone": "+12345678900",
                         "supervisor": "Santa",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -120,6 +136,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         },
                         "phone": "+12345678900",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -152,7 +172,7 @@ class EmploymentsTests(CategoriesTestsBase):
             self.app.get(f"/api/v1/employment/{self.ids_to_cleanup[0]}"), 200
         )
         title = self.assertFieldIn(response, field="title")
-        self.assertEqual(title, "Senior Intern", f"Unexpected title '{title}")
+        self.assertEqual(title, "Senior Intern", f"Unexpected title '{title}'")
 
     def test_get_single_nonexistent_employment(self):
         self.verify_response_code(self.app.get("/api/v1/employment/5f0113731c990801cc5d3240"), 404)
@@ -179,6 +199,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         "phone": "+12345678900",
                         "supervisor": "Santa",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -212,6 +236,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         "phone": "+12345678900",
                         "supervisor": "Santa",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "foo": "bar",  # Extra field, should throw error
                     "tags": [],
                 },
@@ -237,6 +265,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         "phone": "+12345678900",
                         "supervisor": "Santa",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -261,6 +293,10 @@ class EmploymentsTests(CategoriesTestsBase):
                         },
                         "phone": "+12345678900",
                     },
+                    "start_month": "1",
+                    "start_year": "2015",
+                    "end_month": "",
+                    "end_year": "",
                     "tags": [],
                 },
             ),
@@ -297,6 +333,10 @@ class EmploymentsTests(CategoriesTestsBase):
                             "phone": "+12345678900",
                             "supervisor": "",
                         },
+                        "start_month": "1",
+                        "start_year": "2015",
+                        "end_month": "",
+                        "end_year": "",
                         "tags": [],
                     }
                 )
