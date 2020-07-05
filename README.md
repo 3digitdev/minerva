@@ -43,8 +43,8 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 ## TODO
 
-- Unit testing Flask API
 - Make create/update endpoints error out with unexpected extra fields``
 - Endpoint to tag a given object (by id)
 - Code cleanup + comments (docstrings, etc)
 - `make clean_test` command for emptying the mongo unittest collections
+  - needs accompanying Python script
