@@ -1,5 +1,6 @@
 from typing import Type, List
 from pymongo import MongoClient, ReturnDocument
+from pymongo.collection import Collection
 from pymongo.database import Database
 from bson.objectid import ObjectId
 from datetime import date
@@ -22,7 +23,7 @@ class MongoConnector:
     def __enter__(self) -> "MongoConnector":
         self.client: MongoClient = MongoClient("mongodb://localhost:27017/")
         self.db: Database = self.client.minerva
-        self.collection = self.db[self.coll_name]
+        self.collection: Collection = self.db[self.coll_name]
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -70,3 +71,8 @@ class MongoConnector:
         if result is None:
             return None
         return [self.item_type.from_mongo(event) for event in result]
+
+    def cascade_tag_delete(self, tag_name: str) -> None:
+        self.collection.update_many(
+            filter={"tags": {"$in": [tag_name]}}, update={"$pullAll": {"tags": [tag_name]}}
+        )

@@ -24,7 +24,7 @@ class LinksTests(CategoriesTestsBase):
             self.app.post(
                 "/api/v1/links",
                 json={
-                    "name": "TEST_CREATE_NOTE",
+                    "name": "TEST_CREATE_LINK",
                     "url": "speedrun.com",
                     "notes": ["a", "b"],
                     "tags": [],
@@ -35,16 +35,16 @@ class LinksTests(CategoriesTestsBase):
         new_id = self.assertFieldIn(response, field="id")
         self.ids_to_cleanup.append(new_id)
 
-    def text_create_link_missing_required_field(self):
+    def test_create_link_missing_required_field(self):
         self.verify_response_code(
-            self.app.post("/api/v1/links", json={"url": "speedrun.com", "tags": []}), 404
+            self.app.post("/api/v1/links", json={"url": "speedrun.com", "tags": []}), 400
         )
 
     def test_create_link_missing_optional_field_is_empty(self):
         response = self.verify_response_code(
             self.app.post(
                 "/api/v1/links",
-                json={"name": "TEST_CREATE_LINK_MISSING_NOTES", "url": "speedrun.com", "tags": []},
+                json={"name": "TEST_CREATE_LINK_MISSING_LINKS", "url": "speedrun.com", "tags": []},
             ),
             201,
         )
@@ -144,7 +144,7 @@ class LinksTests(CategoriesTestsBase):
     def test_delete_link(self):
         with MongoConnector(Link, is_test=True) as db:
             new_id = db.create(
-                Link.from_request({"name": "TEST_DELETE_NOTE", "url": "", "notes": [], "tags": []})
+                Link.from_request({"name": "TEST_DELETE_LINK", "url": "", "notes": [], "tags": []})
             )
             self.ids_to_cleanup.append(new_id)
         response = self.verify_response_code(self.app.delete(f"/api/v1/links/{new_id}"), 204)

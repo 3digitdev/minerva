@@ -1,6 +1,7 @@
 import os
-from typing import Type, List
+import attr
 
+from typing import Type, List, Callable
 from flask import Flask, request, make_response, Response
 
 from .categories.category import Category
@@ -13,23 +14,34 @@ from .categories.recipes import Recipe
 from .categories.tags import Tag
 from .connectors.mongo import MongoConnector
 from .categories.notes import Note
-from .helpers.exceptions import HttpError, BadRequestError, NotFoundError
-from .helpers.types import Maybe
+from .helpers.exceptions import HttpError, BadRequestError, NotFoundError, InternalServerError
+from .helpers.types import Maybe, JsonData
 
 URL_BASE = "/api/v1"
 TESTING = False
+ALL_TYPES = [Date, Employment, Housing, Link, Login, Note, Recipe, Tag]
+
+
+@attr.s
+class Hooks:
+    # Used for cascading tags deletion
+    after_delete: Callable[[Category], None] = attr.ib(default=lambda x: None)
 
 
 class Route:
-    def __init__(self, cat: Type[Category], is_test: bool):
+    def __init__(self, cat: Type[Category], is_test: bool, hooks: JsonData = {}):
         self.single: str = str(cat.__name__.lower())
         self.multi: str = self.single + "s"
         self.category: Type[Category] = cat
         self.is_test = is_test
+        try:
+            self.hooks = Hooks(**hooks)
+        except Exception as e:
+            raise InternalServerError(f"Invalid hooks: {str(e)}")
 
     @classmethod
-    def build(cls, cat: Type[Category], is_test: bool) -> "Route":
-        return cls(cat, is_test)
+    def build(cls, cat: Type[Category], is_test: bool, hooks: JsonData = {}) -> "Route":
+        return cls(cat, is_test, hooks)
 
     def item_not_found(self, item_id: str) -> Response:
         return make_response(
@@ -70,7 +82,10 @@ class Route:
                         return make_response(result.__dict__(), 200)
                     return self.item_not_found(item_id)
                 elif request.method == "DELETE":
+                    item = db.find_one(item_id)
                     if db.delete_one(item_id) > 0:
+                        if item:
+                            self.hooks.after_delete(item)
                         return make_response({}, 204)
                     return self.item_not_found(item_id)
         except HttpError as e:
@@ -99,9 +114,16 @@ def create_app(test_config=None):
     def all_tags():
         return Route.build(Tag, is_test).all_items()
 
+    def cascade_delete_tag(tag: Tag):
+        for item_type in [t for t in ALL_TYPES if t != Tag]:
+            with MongoConnector(item_type, is_test) as db:
+                db.cascade_tag_delete(tag.name)
+
     @app.route(f"{URL_BASE}/tags/<string:tag_id>", methods=["GET", "PUT", "DELETE"])
     def tag_by_id(tag_id: str):
-        return Route.build(Tag, is_test).item_by_id(item_id=tag_id)
+        return Route.build(Tag, is_test, hooks={"after_delete": cascade_delete_tag}).item_by_id(
+            item_id=tag_id
+        )
 
     # endregion
 

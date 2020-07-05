@@ -56,7 +56,7 @@ class DatesTests(CategoriesTestsBase):
         new_id = self.assertFieldIn(response, field="id")
         self.ids_to_cleanup.append(new_id)
 
-    def text_create_date_missing_required_field(self):
+    def test_create_date_missing_required_field(self):
         self.verify_response_code(
             self.app.post(
                 "/api/v1/dates",
@@ -69,7 +69,7 @@ class DatesTests(CategoriesTestsBase):
                     "tags": [],
                 },
             ),
-            404,
+            400,
         )
 
     def test_create_date_missing_optional_field_is_empty(self):

@@ -75,7 +75,7 @@ class HousingsTests(CategoriesTestsBase):
         new_id = self.assertFieldIn(response, field="id")
         self.ids_to_cleanup.append(new_id)
 
-    def text_create_housing_missing_required_field(self):
+    def test_create_housing_missing_required_field(self):
         self.verify_response_code(
             self.app.post(
                 "/api/v1/housing",
@@ -96,7 +96,7 @@ class HousingsTests(CategoriesTestsBase):
                     "tags": [],
                 },
             ),
-            404,
+            400,
         )
 
     def test_create_housing_missing_optional_field_is_empty(self):
