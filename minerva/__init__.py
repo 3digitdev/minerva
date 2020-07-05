@@ -26,6 +26,8 @@ ALL_TYPES = [Date, Employment, Housing, Link, Login, Note, Recipe, Tag]
 class Hooks:
     # Used for cascading tags deletion
     after_delete: Callable[[Category], None] = attr.ib(default=lambda x: None)
+    # Used for cascading tags updates
+    after_update: Callable[[Category, Category], None] = attr.ib(default=lambda x, y: None)
 
 
 class Route:
@@ -74,11 +76,13 @@ class Route:
                         return make_response(item.__dict__(), 200)
                     return self.item_not_found(item_id)
                 elif request.method == "PUT":
-                    if not db.find_one(item_id):
+                    old_item = db.find_one(item_id)
+                    if not old_item:
                         return self.item_not_found(item_id)
                     updated_item = self.category.from_request(request.json)
                     result = db.update_one(item_id, updated_item)
                     if result:
+                        self.hooks.after_update(old_item, updated_item)
                         return make_response(result.__dict__(), 200)
                     return self.item_not_found(item_id)
                 elif request.method == "DELETE":
@@ -119,11 +123,18 @@ def create_app(test_config=None):
             with MongoConnector(item_type, is_test) as db:
                 db.cascade_tag_delete(tag.name)
 
+    def cascade_update_tag(old_tag: Tag, new_tag: Tag):
+        for item_type in [t for t in ALL_TYPES if t != Tag]:
+            with MongoConnector(item_type, is_test) as db:
+                db.cascade_tag_update(old_tag.name, new_tag.name)
+
     @app.route(f"{URL_BASE}/tags/<string:tag_id>", methods=["GET", "PUT", "DELETE"])
     def tag_by_id(tag_id: str):
-        return Route.build(Tag, is_test, hooks={"after_delete": cascade_delete_tag}).item_by_id(
-            item_id=tag_id
-        )
+        return Route.build(
+            Tag,
+            is_test,
+            hooks={"after_delete": cascade_delete_tag, "after_update": cascade_update_tag},
+        ).item_by_id(item_id=tag_id)
 
     # endregion
 

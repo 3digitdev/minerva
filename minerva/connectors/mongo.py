@@ -76,3 +76,10 @@ class MongoConnector:
         self.collection.update_many(
             filter={"tags": {"$in": [tag_name]}}, update={"$pullAll": {"tags": [tag_name]}}
         )
+
+    def cascade_tag_update(self, old_tag_name: str, new_tag_name: str) -> None:
+        self.collection.update_many(
+            filter={"tags": {"$in": [old_tag_name]}},
+            update={"$set": {"tags.$[elem]": new_tag_name}},
+            array_filters=[{"elem": {"$eq": old_tag_name}}],
+        )

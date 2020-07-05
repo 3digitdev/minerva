@@ -43,7 +43,7 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 ## TODO
 
-- Add functionality to "Tag DELETE" endpoint to cascade the change to remove tag from any item that has it
+- Index on tag name to avoid duplicates
 - Add security to endpoint calls
 - Add logging to endpoints for a full access log
 - Code cleanup + comments (docstrings, etc)
