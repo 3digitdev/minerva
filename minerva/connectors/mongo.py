@@ -2,18 +2,15 @@ from typing import Type, List
 from pymongo import MongoClient, ReturnDocument
 from pymongo.collection import Collection
 from pymongo.database import Database
-from bson.objectid import ObjectId
-from datetime import date
+from datetime import date, datetime
 
+from .base_connector import BaseConnector, by_id
+from ..categories.logs import Log
 from ..categories.category import Category
-from ..helpers.types import JsonData, Maybe
+from ..helpers.types import JsonData, Maybe, LogLevel
 
 
-def by_id(obj_id: str) -> JsonData:
-    return {"_id": ObjectId(obj_id)}
-
-
-class MongoConnector:
+class MongoConnector(BaseConnector):
     def __init__(self, item_type: Type[Category], is_test=False) -> None:
         self.item_type = item_type
         self.coll_name = item_type.collection()
@@ -89,3 +86,23 @@ class MongoConnector:
             update={"$set": {"tags.$[elem]": new_tag_name}},
             array_filters=[{"elem": {"$eq": old_tag_name}}],
         )
+
+    def add_log(self, user: str, level: LogLevel, message: str, details: JsonData = {}) -> None:
+        self.collection.insert_one(
+            {
+                "created_at": datetime.now(),
+                "user": user,
+                "level": str(level),
+                "message": message,
+                "details": details,
+            }
+        )
+
+    def get_logs(self, users: List[str] = [], levels: List[str] = []) -> List[Log]:
+        search_filter = {}
+        if users:
+            search_filter["user"] = {"$in": users}
+        if levels:
+            search_filter["level"] = {"$in": levels}
+        results = self.collection.find(search_filter)
+        return [Log.from_mongo(log) for log in results]

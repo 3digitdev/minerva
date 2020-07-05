@@ -6,6 +6,7 @@ from flask import Flask, request, make_response, Response
 from pymongo.errors import DuplicateKeyError
 
 from .categories.category import Category
+from .categories.logs import Log
 from .categories.api_keys import ApiKey
 from .categories.dates import Date
 from .categories.employments import Employment
@@ -19,6 +20,7 @@ from .categories.notes import Note
 from .helpers.exceptions import HttpError, BadRequestError, NotFoundError, InternalServerError
 from .helpers.types import Maybe, JsonData
 from .helpers.authorization import validate_key
+from .helpers.logging import info, error
 
 URL_BASE = "/api/v1"
 TESTING = False
@@ -39,7 +41,7 @@ class Route:
         self.multi: str = self.single + "s"
         self.category: Type[Category] = cat
         self.is_test = is_test
-        self.api_key = None
+        self.api_key = ApiKey("", "TEST_USER") if is_test else None
         try:
             self.hooks = Hooks(**hooks)
         except Exception as e:
@@ -55,15 +57,30 @@ class Route:
             404,
         )
 
+    @staticmethod
+    def log_http_error(api_key: Maybe[ApiKey], e: HttpError):
+        error(
+            request,
+            user=api_key.user if api_key else "UNKNOWN_USER",
+            message=f"[{e.code}] {e.msg}",
+            details={"error": e.__class__.__name__},
+        )
+
     def all_items(self):
         try:
             if not self.is_test:
                 self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
-            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
             with MongoConnector(self.category, is_test=self.is_test) as db:
                 if request.method == "GET":
                     found_items = db.find_all()
-                    return make_response({self.multi: [i.__dict__() for i in found_items]}, 200)
+                    resp_body = {self.multi: [i.__dict__() for i in found_items]}
+                    info(
+                        request,
+                        user=self.api_key.user if self.api_key else "TEST_USER",
+                        message=f"Found {len(found_items)} items",
+                        details=resp_body,
+                    )
+                    return make_response(resp_body, 200)
                 elif request.method == "POST":
                     if not request.json:
                         raise BadRequestError("Expected a json body but received none")
@@ -73,19 +90,30 @@ class Route:
                         item_id = db.create(item)
                     except DuplicateKeyError as e:
                         raise BadRequestError(str(e))
+                    info(
+                        request,
+                        user=self.api_key.user if self.api_key else "TEST_USER",
+                        message=f"Created {item_id}",
+                    )
                     return make_response({"id": item_id}, 201)
         except HttpError as e:
+            Route.log_http_error(self.api_key, e)
             return make_response({"error": e.msg}, e.code)
 
     def item_by_id(self, item_id: str):
         try:
             if not self.is_test:
                 self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
-            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
             with MongoConnector(self.category, is_test=self.is_test) as db:
                 if request.method == "GET":
                     item = db.find_one(item_id)
                     if item:
+                        info(
+                            request,
+                            user=self.api_key.user if self.api_key else "TEST_USER",
+                            message=f"Found {item_id}",
+                            details=item.__dict__(),
+                        )
                         return make_response(item.__dict__(), 200)
                     return self.item_not_found(item_id)
                 elif request.method == "PUT":
@@ -99,6 +127,12 @@ class Route:
                         raise BadRequestError(str(e))
                     if result:
                         self.hooks.after_update(old_item, updated_item)
+                        info(
+                            request,
+                            user=self.api_key.user if self.api_key else "TEST_USER",
+                            message=f"Updated {item_id}",
+                            details={"old": old_item.__dict__(), "new": result.__dict__()},
+                        )
                         return make_response(result.__dict__(), 200)
                     return self.item_not_found(item_id)
                 elif request.method == "DELETE":
@@ -106,9 +140,16 @@ class Route:
                     if db.delete_one(item_id) > 0:
                         if item:
                             self.hooks.after_delete(item)
+                        info(
+                            request,
+                            user=self.api_key.user if self.api_key else "TEST_USER",
+                            message=f"Deleted {item_id}",
+                            details={"deleted": item.__dict__()},
+                        )
                         return make_response({}, 204)
                     return self.item_not_found(item_id)
         except HttpError as e:
+            Route.log_http_error(self.api_key, e)
             return make_response({"error": e.msg}, e.code)
 
 
@@ -184,17 +225,25 @@ def create_app(test_config=None):
     # This must be before "by id" to avoid path conflicts!
     @app.route(f"{URL_BASE}/dates/today", methods=["GET"])
     def get_today_events():
+        api_key: Maybe[ApiKey] = None
         try:
             if not is_test:
-                api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
-            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
+                api_key = validate_key(request.headers.get("x-api-key", None))
             if request.method == "GET":
                 with MongoConnector(Date, is_test) as db:
                     dates: Maybe[List[Date]] = db.get_today_events()
                     if not dates:
                         raise NotFoundError("No events in the database occur today")
-                    return make_response({"dates": [d.__dict__() for d in dates]}, 200)
+                    resp_body = {"dates": [d.__dict__() for d in dates]}
+                    info(
+                        request,
+                        user=api_key.user if api_key else "TEST_USER",
+                        message=f"Found {len(dates)} events",
+                        details=resp_body,
+                    )
+                    return make_response(resp_body, 200)
         except HttpError as e:
+            Route.log_http_error(api_key, e)
             return make_response({"error": e.msg}, e.code)
 
     @app.route(f"{URL_BASE}/dates/<string:date_id>", methods=["GET", "PUT", "DELETE"])
@@ -244,6 +293,25 @@ def create_app(test_config=None):
     @app.route(f"{URL_BASE}/recipes/<string:recipe_id>", methods=["GET", "PUT", "DELETE"])
     def recipe_by_id(recipe_id: str):
         return Route.build(Recipe, is_test).item_by_id(item_id=recipe_id)
+
+    # endregion
+
+    # region LOG ROUTES
+    @app.route(f"{URL_BASE}/logs", methods=["GET"])
+    def get_logs():
+        if request.method == "GET":
+            api_key: Maybe[ApiKey] = None
+            if not is_test:
+                api_key = validate_key(request.headers.get("x-api-key", None))
+            with MongoConnector(Log, is_test) as db:
+                # TODO:  Pagination and filtering query params
+                logs: List[Log] = db.get_logs()
+                info(
+                    request,
+                    user=api_key.user if api_key else "TEST_USER",
+                    message=f"Found {len(logs)} logs",
+                )
+                return make_response({"logs": logs}, 200)
 
     # endregion
 

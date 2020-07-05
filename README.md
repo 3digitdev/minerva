@@ -49,7 +49,7 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 ## TODO
 
-- Add logging to endpoints for a full access log
+- Add pagination query params to "get all" endpoints
 - Code cleanup + comments (docstrings, etc)
 - Figure out how to build Mongo so it adds the "Tag name" index automatically on creation
   - Command:  `db.tags.createIndex({"name": 1}, {unique: true})`
