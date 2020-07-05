@@ -18,10 +18,16 @@ class Link(Category):
     id: str = attr.ib(default="")
 
     def __dict__(self) -> JsonData:
-        return {"_id": self.id, "url": self.url, "notes": self.notes, "tags": self.tags}
+        return {
+            "_id": self.id,
+            "name": self.name,
+            "url": self.url,
+            "notes": self.notes,
+            "tags": self.tags,
+        }
 
     def to_json(self) -> JsonData:
-        return {"url": self.url, "notes": self.notes, "tags": self.tags}
+        return {"name": self.name, "url": self.url, "notes": self.notes, "tags": self.tags}
 
     @staticmethod
     def from_request(req: JsonData) -> "Link":

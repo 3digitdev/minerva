@@ -1,4 +1,5 @@
-from minerva import MongoConnector, Note
+from minerva import MongoConnector
+from minerva.categories.notes import Note
 from .test_categories_base import CategoriesTestsBase
 
 

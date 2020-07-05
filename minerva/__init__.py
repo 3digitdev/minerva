@@ -85,7 +85,7 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    is_test = test_config.get("TESTING", False)
+    is_test = (test_config or {}).get("TESTING", False)
 
     # ensure the instance folder exists
     try:
