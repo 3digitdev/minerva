@@ -140,9 +140,7 @@ class LoginsTests(CategoriesTestsBase):
         )
 
     def test_update_login_extra_field(self):
-        # TODO:  Right now this test is tuned to pass and ignore the field.
-        #        I want to eventually get this so it errors if there's unexpected fields.
-        response = self.verify_response_code(
+        self.verify_response_code(
             self.app.put(
                 f"/api/v1/logins/{self.ids_to_cleanup[0]}",
                 json={
@@ -152,18 +150,11 @@ class LoginsTests(CategoriesTestsBase):
                     "username": self.test_logins[0]["username"],
                     "email": self.test_logins[0]["email"],
                     "security_questions": self.test_logins[0]["security_questions"],
-                    "foo": "bar",
+                    "foo": "bar",  # Extra field -- should throw error
                     "tags": self.test_logins[0]["tags"],
                 },
             ),
-            200,
-        )
-        application = self.assertFieldIn(response, field="application")
-        self.assertEqual(
-            application, "Update with extra fields", "'application' field did not update correctly"
-        )
-        self.assertNotIn(
-            "foo", response, f"Expected 'foo' field to not be in response body -- {response}"
+            400,
         )
 
     def test_update_login_missing_required_field(self):

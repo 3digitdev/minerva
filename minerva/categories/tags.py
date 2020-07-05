@@ -1,7 +1,6 @@
 import attr
 
 from .category import Category
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 
 
@@ -23,10 +22,9 @@ class Tag(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["name"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Tag")
+        Category.verify_incoming_request(
+            body=body, required_fields=["name"], optional_fields=[], category=Tag
+        )
 
     @staticmethod
     def collection() -> str:

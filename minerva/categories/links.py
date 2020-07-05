@@ -3,7 +3,6 @@ from typing import List
 import attr
 
 from .category import Category
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
 
@@ -38,10 +37,12 @@ class Link(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["name", "url"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Link")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["name", "url"],
+            optional_fields=["notes", "tags"],
+            category=Link,
+        )
 
     @staticmethod
     def collection() -> str:

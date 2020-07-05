@@ -4,7 +4,6 @@ import attr
 
 from .addresses import Address, address_converter
 from .category import Category
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
 
@@ -46,10 +45,13 @@ class Employer(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["address", "phone"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Employer")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["address", "phone"],
+            optional_fields=["supervisor"],
+            category=Employer,
+        )
+        Address.verify_request_body(body["address"])
 
     @staticmethod
     def collection() -> str:
@@ -94,10 +96,12 @@ class Employment(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["title", "salary", "employer"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Employment")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["title", "salary", "employer"],
+            optional_fields=["tags"],
+            category=Employment,
+        )
 
     @staticmethod
     def collection() -> str:

@@ -140,9 +140,7 @@ class DatesTests(CategoriesTestsBase):
         )
 
     def test_update_date_extra_field(self):
-        # TODO:  Right now this test is tuned to pass and ignore the field.
-        #        I want to eventually get this so it errors if there's unexpected fields.
-        response = self.verify_response_code(
+        self.verify_response_code(
             self.app.put(
                 f"/api/v1/dates/{self.ids_to_cleanup[0]}",
                 json={
@@ -152,16 +150,11 @@ class DatesTests(CategoriesTestsBase):
                     "year": "1924",
                     "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
-                    "foo": "bar",
+                    "foo": "bar",  # Extra field, should throw error
                     "tags": [],
                 },
             ),
-            200,
-        )
-        name = self.assertFieldIn(response, field="name")
-        self.assertEqual(name, "A Quincenera", "'name' field did not update correctly")
-        self.assertNotIn(
-            "foo", response, f"Expected 'foo' field to not be in response body -- {response}"
+            400,
         )
 
     def test_update_date_missing_required_field(self):

@@ -1,11 +1,9 @@
-from typing import List, Union
+from typing import Union
 
 import attr
 
 from .category import Category
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
-from ..helpers.validators import validate_tag_list
 
 
 def address_converter(address: Union["Address", JsonData]) -> "Address":
@@ -57,10 +55,12 @@ class Address(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["number", "street", "city", "state", "zip_code"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Address")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["number", "street", "city", "state", "zip_code"],
+            optional_fields=["extra"],
+            category=Address,
+        )
 
     @staticmethod
     def collection() -> str:

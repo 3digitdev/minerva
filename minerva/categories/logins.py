@@ -26,12 +26,12 @@ class SecurityQuestion(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["question", "answer"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(
-                    f"Invalid request -- missing field '{field}' in Security Question"
-                )
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["question", "answer"],
+            optional_fields=[],
+            category=SecurityQuestion,
+        )
 
     @staticmethod
     def collection() -> str:
@@ -105,10 +105,12 @@ class Login(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["application", "password"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Login")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["application", "password"],
+            optional_fields=["url", "username", "email", "security_questions", "tags"],
+            category=Login,
+        )
         for sq in body.get("security_questions", []):
             SecurityQuestion.verify_request_body(sq)
 

@@ -155,9 +155,7 @@ class RecipesTests(CategoriesTestsBase):
         )
 
     def test_update_recipe_extra_field(self):
-        # TODO:  Right now this test is tuned to pass and ignore the field.
-        #        I want to eventually get this so it errors if there's unexpected fields.
-        response = self.verify_response_code(
+        self.verify_response_code(
             self.app.put(
                 f"/api/v1/recipes/{self.ids_to_cleanup[0]}",
                 json={
@@ -169,15 +167,11 @@ class RecipesTests(CategoriesTestsBase):
                     "url": "",
                     "source": "",
                     "notes": [],
+                    "foo": "bar",  # Extra field -- should throw error
                     "tags": [],
                 },
             ),
-            200,
-        )
-        name = self.assertFieldIn(response, field="name")
-        self.assertEqual(name, "Marshmallows", "'name' field did not update correctly")
-        self.assertNotIn(
-            "foo", response, f"Expected 'foo' field to not be in response body -- {response}"
+            400,
         )
 
     def test_update_recipe_missing_required_field(self):
@@ -210,7 +204,6 @@ class RecipesTests(CategoriesTestsBase):
                     "cooking_style": "",
                     "source": "",
                     "notes": [],
-                    "foo": "bar",
                     "tags": [],
                 },
             ),

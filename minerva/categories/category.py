@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
+from typing import List, Type
 
+from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 
 
@@ -19,6 +21,24 @@ class Category(metaclass=ABCMeta):
     @abstractmethod
     def from_request(req: JsonData) -> "Category":
         return NotImplemented
+
+    @staticmethod
+    def verify_incoming_request(
+        *,
+        body: JsonData,
+        required_fields: List[str],
+        optional_fields: List[str],
+        category: Type["Category"],
+    ) -> None:
+        all_fields = required_fields + optional_fields
+        for field in body:
+            if field not in all_fields:
+                raise BadRequestError(f"Invalid request -- found unexpected field '{field}'")
+        for field in required_fields:
+            if field not in body:
+                raise BadRequestError(
+                    f"Invalid request -- missing field '{field}' in {category.__name__}"
+                )
 
     @staticmethod
     @abstractmethod

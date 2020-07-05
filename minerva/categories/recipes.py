@@ -4,7 +4,6 @@ from enum import Enum
 import attr
 
 from .category import Category
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
 
@@ -52,10 +51,9 @@ class Ingredient(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["amount", "item"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Ingredient")
+        Category.verify_incoming_request(
+            body=body, required_fields=["amount", "item"], optional_fields=[], category=Ingredient
+        )
 
     @staticmethod
     def collection() -> str:
@@ -120,10 +118,14 @@ class Recipe(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["name", "ingredients", "instructions", "recipe_type"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Recipe")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["name", "ingredients", "instructions", "recipe_type"],
+            optional_fields=["cooking_style", "url", "source", "notes", "tags"],
+            category=Recipe,
+        )
+        for ingredient in body.get("ingredients", []):
+            Ingredient.verify_request_body(ingredient)
 
     @staticmethod
     def collection() -> str:

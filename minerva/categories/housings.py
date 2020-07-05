@@ -5,7 +5,6 @@ import attr
 from .addresses import Address, address_converter
 from .category import Category
 from .dates import month_validator, year_validator
-from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
 
@@ -60,10 +59,13 @@ class Housing(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["address", "start_month", "start_year"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Housing")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["address", "start_month", "start_year"],
+            optional_fields=["end_month", "end_year", "monthly_payment", "tags"],
+            category=Housing,
+        )
+        Address.verify_request_body(body["address"])
 
     @staticmethod
     def collection() -> str:

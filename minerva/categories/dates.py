@@ -86,10 +86,12 @@ class Date(Category):
 
     @staticmethod
     def verify_request_body(body: JsonData) -> None:
-        required = ["name", "day", "month"]
-        for field in required:
-            if field not in body:
-                raise BadRequestError(f"Invalid request -- missing field '{field}' in Date")
+        Category.verify_incoming_request(
+            body=body,
+            required_fields=["name", "day", "month"],
+            optional_fields=["year", "subject", "notes", "tags"],
+            category=Date,
+        )
 
     @staticmethod
     def collection() -> str:

@@ -16,7 +16,6 @@ class HousingsTests(CategoriesTestsBase):
                     "city": "Nowhere",
                     "state": "NE",
                     "zip_code": "98765",
-                    "tags": [],
                 },
                 "start_month": "1",
                 "start_year": "2020",
@@ -33,7 +32,6 @@ class HousingsTests(CategoriesTestsBase):
                     "city": "Nowhere",
                     "state": "NE",
                     "zip_code": "98765",
-                    "tags": [],
                 },
                 "start_month": "1",
                 "start_year": "2020",
@@ -63,7 +61,6 @@ class HousingsTests(CategoriesTestsBase):
                         "city": "Nowhere",
                         "state": "NE",
                         "zip_code": "98765",
-                        "tags": [],
                     },
                     "start_month": "1",
                     "start_year": "2020",
@@ -114,7 +111,6 @@ class HousingsTests(CategoriesTestsBase):
                         "city": "Nowhere",
                         "state": "NE",
                         "zip_code": "98765",
-                        "tags": [],
                     },
                     "start_month": "1",
                     "start_year": "2020",
@@ -221,7 +217,6 @@ class HousingsTests(CategoriesTestsBase):
                         "city": "Nowhere",
                         "state": "NE",
                         "zip_code": "98765",
-                        "tags": [],
                     },
                     "start_month": "9",
                     "start_year": "2020",
@@ -243,9 +238,7 @@ class HousingsTests(CategoriesTestsBase):
         )
 
     def test_update_housing_extra_field(self):
-        # TODO:  Right now this test is tuned to pass and ignore the field.
-        #        I want to eventually get this so it errors if there's unexpected fields.
-        response = self.verify_response_code(
+        self.verify_response_code(
             self.app.put(
                 f"/api/v1/housing/{self.ids_to_cleanup[0]}",
                 json={
@@ -261,17 +254,12 @@ class HousingsTests(CategoriesTestsBase):
                     "start_year": "2020",
                     "end_month": "5",
                     "end_year": "2020",
-                    "foo": "bar",
+                    "foo": "bar",  # Extra field, should throw error
                     "monthly_payment": 1545,
                     "tags": [],
                 },
             ),
-            200,
-        )
-        start_month = self.assertFieldIn(response, field="start_month")
-        self.assertEqual(start_month, "9", "'start_month' field did not update correctly")
-        self.assertNotIn(
-            "foo", response, f"Expected 'foo' field to not be in response body -- {response}"
+            400,
         )
 
     def test_update_housing_missing_required_field(self):
@@ -286,7 +274,6 @@ class HousingsTests(CategoriesTestsBase):
                         "city": "Nowhere",
                         "state": "NE",
                         "zip_code": "98765",
-                        "tags": [],
                     },
                     "start_year": "2020",
                     "end_month": "5",
@@ -310,7 +297,6 @@ class HousingsTests(CategoriesTestsBase):
                         "city": "Nowhere",
                         "state": "NE",
                         "zip_code": "98765",
-                        "tags": [],
                     },
                     "start_month": "9",
                     "start_year": "2020",
@@ -343,7 +329,6 @@ class HousingsTests(CategoriesTestsBase):
                             "city": "Nowhere",
                             "state": "NE",
                             "zip_code": "98765",
-                            "tags": [],
                         },
                         "start_month": "1",
                         "start_year": "2020",
