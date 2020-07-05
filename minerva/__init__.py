@@ -3,6 +3,7 @@ import attr
 
 from typing import Type, List, Callable
 from flask import Flask, request, make_response, Response
+from pymongo.errors import DuplicateKeyError
 
 from .categories.category import Category
 from .categories.dates import Date
@@ -62,7 +63,10 @@ class Route:
                         raise BadRequestError("Expected a json body but received none")
                     self.category.verify_request_body(request.json)
                     item = self.category.from_request(request.json)
-                    item_id = db.create(item)
+                    try:
+                        item_id = db.create(item)
+                    except DuplicateKeyError as e:
+                        raise BadRequestError(str(e))
                     return make_response({"id": item_id}, 201)
         except HttpError as e:
             return make_response({"error": e.msg}, e.code)
@@ -80,7 +84,10 @@ class Route:
                     if not old_item:
                         return self.item_not_found(item_id)
                     updated_item = self.category.from_request(request.json)
-                    result = db.update_one(item_id, updated_item)
+                    try:
+                        result = db.update_one(item_id, updated_item)
+                    except DuplicateKeyError as e:
+                        raise BadRequestError(str(e))
                     if result:
                         self.hooks.after_update(old_item, updated_item)
                         return make_response(result.__dict__(), 200)
