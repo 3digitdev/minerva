@@ -51,6 +51,8 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 - Add pagination query params to "get all" endpoints
 - Code cleanup + comments (docstrings, etc)
-- Figure out how to build Mongo so it adds the "Tag name" index automatically on creation
-  - Command:  `db.tags.createIndex({"name": 1}, {unique: true})`
+- Figure out how to build Mongo so it adds indices automatically on creation
+  - Commands:
+    - `db.tags.createIndex({"name": 1}, {unique: true})`
+    - `db.access_logs.createIndex({"created_at": 1}, {expireAfterSeconds: 604800})`
   - Needed for Docker image eventually
