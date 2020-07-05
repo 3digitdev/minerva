@@ -28,6 +28,8 @@ def month_validator(instance, attr, value) -> None:
 
 
 def year_validator(instance, attr, value) -> None:
+    if value == "":
+        return
     try:
         int(value)
     except ValueError:
