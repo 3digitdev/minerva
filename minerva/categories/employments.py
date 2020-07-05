@@ -1,17 +1,23 @@
-from typing import List
+from typing import List, Union
 
 import attr
 
-from .addresses import Address
+from .addresses import Address, address_converter
 from .category import Category
 from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
 
 
+def employer_converter(employer: Union["Employer", JsonData]) -> "Employer":
+    if isinstance(employer, Employer):
+        return employer
+    return Employer(**employer)
+
+
 @attr.s
 class Employer(Category):
-    address: Address = attr.ib()
+    address: Address = attr.ib(converter=address_converter)
     phone: str = attr.ib()
     supervisor: str = attr.ib(default="")
 
@@ -54,7 +60,7 @@ class Employer(Category):
 class Employment(Category):
     title: str = attr.ib()
     salary: int = attr.ib()
-    employer: Employer = attr.ib()
+    employer: Employer = attr.ib(converter=employer_converter)
     # ---
     tags: List[str] = attr.ib(default=[], validator=validate_tag_list)
     id: str = attr.ib(default="")
@@ -70,7 +76,6 @@ class Employment(Category):
 
     def to_json(self) -> JsonData:
         return {
-            "_id": self.id,
             "title": self.title,
             "salary": self.salary,
             "employer": self.employer.to_json(),

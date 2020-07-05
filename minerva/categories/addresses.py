@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import attr
 
@@ -6,6 +6,12 @@ from .category import Category
 from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
+
+
+def address_converter(address: Union["Address", JsonData]) -> "Address":
+    if isinstance(address, Address):
+        return address
+    return Address(**address)
 
 
 @attr.s
@@ -16,8 +22,6 @@ class Address(Category):
     state: str = attr.ib()
     zip_code: str = attr.ib()
     extra: str = attr.ib()  # The "second line" (apt, suite, etc.)
-    # ---
-    tags: List[str] = attr.ib(default=[], validator=validate_tag_list)
 
     def __dict__(self) -> JsonData:
         return {
@@ -27,7 +31,6 @@ class Address(Category):
             "city": self.city,
             "state": self.state,
             "zip_code": self.zip_code,
-            "tags": self.tags,
         }
 
     def to_json(self) -> JsonData:
@@ -38,7 +41,6 @@ class Address(Category):
             "city": self.city,
             "state": self.state,
             "zip_code": self.zip_code,
-            "tags": self.tags,
         }
 
     @staticmethod
@@ -51,7 +53,6 @@ class Address(Category):
             state=req["state"],
             zip_code=req["zip_code"],
             extra=req.get("extra", ""),
-            tags=req.get("tags", []),
         )
 
     @staticmethod

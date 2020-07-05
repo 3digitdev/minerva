@@ -2,8 +2,9 @@ from typing import List
 
 import attr
 
-from .addresses import Address
+from .addresses import Address, address_converter
 from .category import Category
+from .dates import month_validator, year_validator
 from ..helpers.exceptions import BadRequestError
 from ..helpers.types import JsonData
 from ..helpers.validators import validate_tag_list
@@ -11,9 +12,9 @@ from ..helpers.validators import validate_tag_list
 
 @attr.s
 class Housing(Category):
-    address: Address = attr.ib()
-    start_month: str = attr.ib()
-    start_year: str = attr.ib()
+    address: Address = attr.ib(converter=address_converter)
+    start_month: str = attr.ib(validator=month_validator)
+    start_year: str = attr.ib(validator=year_validator)
     end_month: str = attr.ib(default="")
     end_year: str = attr.ib(default="")
     monthly_payment: int = attr.ib(default=0)  # mortgage, rent, etc.
