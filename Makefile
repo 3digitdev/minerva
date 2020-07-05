@@ -16,7 +16,7 @@ clean_unit:
 	@python3 -m clean_unit_tests
 
 lint:
-	@python3 -m black . minerva
+	@python3 -m black .
 
 flask_run:
 	@export FLASK_APP=server.py && cd minerva && flask run
