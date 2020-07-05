@@ -37,6 +37,12 @@ As a result, I wanted to make a dirt-simple self-hosted version.  The intention 
 
 Interfaces, app integrations (browser extensions etc.), and other things can (and probably will) be added, but don't need to be in order to get started with this.
 
+## Security Notes
+
+- **It is expected that any frontend encrypts sensitive data before sending via API.**  The backend does **zero** encryption -- it is merely a storage mechanism.
+- **You will need to create an API Key for your frontend (app, script, or otherwise).**  It is recommended that you make a different one for each consumer of the API.
+  - This API key will need to be added to the DB yourself.  Instructions will be in the **Installation** section.
+
 ## Installation
 
 **TODO**

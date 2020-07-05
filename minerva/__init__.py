@@ -6,6 +6,7 @@ from flask import Flask, request, make_response, Response
 from pymongo.errors import DuplicateKeyError
 
 from .categories.category import Category
+from .categories.api_keys import ApiKey
 from .categories.dates import Date
 from .categories.employments import Employment
 from .categories.housings import Housing
@@ -17,6 +18,7 @@ from .connectors.mongo import MongoConnector
 from .categories.notes import Note
 from .helpers.exceptions import HttpError, BadRequestError, NotFoundError, InternalServerError
 from .helpers.types import Maybe, JsonData
+from .helpers.authorization import validate_key
 
 URL_BASE = "/api/v1"
 TESTING = False
@@ -37,6 +39,7 @@ class Route:
         self.multi: str = self.single + "s"
         self.category: Type[Category] = cat
         self.is_test = is_test
+        self.api_key = None
         try:
             self.hooks = Hooks(**hooks)
         except Exception as e:
@@ -54,6 +57,9 @@ class Route:
 
     def all_items(self):
         try:
+            if not self.is_test:
+                self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
+            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
             with MongoConnector(self.category, is_test=self.is_test) as db:
                 if request.method == "GET":
                     found_items = db.find_all()
@@ -73,6 +79,9 @@ class Route:
 
     def item_by_id(self, item_id: str):
         try:
+            if not self.is_test:
+                self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
+            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
             with MongoConnector(self.category, is_test=self.is_test) as db:
                 if request.method == "GET":
                     item = db.find_one(item_id)
@@ -176,6 +185,9 @@ def create_app(test_config=None):
     @app.route(f"{URL_BASE}/dates/today", methods=["GET"])
     def get_today_events():
         try:
+            if not is_test:
+                api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
+            # TODO:  USE API KEY FOR LOGGING WHAT USER ACCESSES ENDPOINTS
             if request.method == "GET":
                 with MongoConnector(Date, is_test) as db:
                     dates: Maybe[List[Date]] = db.get_today_events()

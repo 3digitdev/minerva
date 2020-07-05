@@ -46,6 +46,12 @@ class MongoConnector:
             return None
         return self.item_type.from_mongo(result)
 
+    def find_custom_filter(self, custom_filter: JsonData) -> Maybe[Category]:
+        result = self.collection.find_one(custom_filter)
+        if not result:
+            return None
+        return self.item_type.from_mongo(result)
+
     def update_one(self, item_id: str, updated_item: Category) -> Maybe[Category]:
         result = self.collection.find_one_and_update(
             by_id(item_id), {"$set": updated_item.to_json()}, return_document=ReturnDocument.AFTER,
