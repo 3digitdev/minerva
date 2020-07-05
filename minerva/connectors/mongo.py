@@ -59,3 +59,6 @@ class MongoConnector:
 
     def delete_one(self, item_id: str) -> int:
         return self.collection.delete_one(by_id(item_id)).deleted_count
+
+    def delete_all(self) -> int:
+        return self.collection.delete_many({}).deleted_count
