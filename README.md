@@ -45,5 +45,3 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 - Add functionality to "Tag DELETE" endpoint to cascade the change to remove tag from any item that has it
 - Code cleanup + comments (docstrings, etc)
-- `make clean_test` command for emptying the mongo unittest collections
-  - needs accompanying Python script
