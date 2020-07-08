@@ -50,6 +50,11 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 ## TODO
 
 - Code cleanup + comments (docstrings, etc)
+- Lots of places where MongoConnector is used explicitly
+  - Need to figure out a way to make that generic so it can be configured
+  - Can this be configured through a config file?
+    - It might be cleaner to do this by just having them change the code...
+    - IDEA:  Maybe they pass an Enum to a generic Connector!
 - Figure out how to build Mongo so it adds indices automatically on creation
   - Commands:
     - `db.tags.createIndex({"name": 1}, {unique: true})`
