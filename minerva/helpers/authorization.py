@@ -8,7 +8,7 @@ def validate_key(key: Maybe[str]) -> Maybe[ApiKey]:
     if not key:
         raise UnauthorizedError()
     with MongoConnector(ApiKey, is_test=False) as db:
-        api_key = db.find_custom_filter(custom_filter={"key": key})
+        api_key = db.find_api_key(key)
         if not api_key:
             raise UnauthorizedError()
     return api_key

@@ -41,6 +41,6 @@ if __name__ == "__main__":
                 to_delete.append(log.id)
         count = 0
         for delete_id in to_delete:
-            count += db.delete_one(delete_id)
+            count += 1 if db.delete_one(delete_id) else 0
         print(f"Deleted {count} records for Logs")
     print(("=" * 30))

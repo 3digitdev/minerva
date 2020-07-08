@@ -1,18 +1,26 @@
 from typing import Type, List
+
+from bson import ObjectId
 from pymongo import MongoClient, ReturnDocument
 from pymongo.collection import Collection
 from pymongo.database import Database
 from datetime import date, datetime
 
-from .base_connector import BaseConnector, by_id
+from ..categories.api_keys import ApiKey
+from .base_connector import BaseConnector
 from ..categories.logs import Log
 from ..categories.category import Category
 from ..helpers.types import JsonData, Maybe, LogLevel
 
 
+def by_id(obj_id: str) -> JsonData:
+    """Helper function for building Mongo queries"""
+    return {"_id": ObjectId(obj_id)}
+
+
 class MongoConnector(BaseConnector):
     def __init__(self, item_type: Type[Category], is_test=False) -> None:
-        self.item_type = item_type
+        super().__init__(item_type, is_test)
         self.coll_name = item_type.collection()
         if is_test:
             self.coll_name = f"unittest_{self.coll_name}"
@@ -43,11 +51,11 @@ class MongoConnector(BaseConnector):
             return None
         return self.item_type.from_mongo(result)
 
-    def find_custom_filter(self, custom_filter: JsonData) -> Maybe[Category]:
-        result = self.collection.find_one(custom_filter)
+    def find_api_key(self, key: str) -> Maybe[ApiKey]:
+        result = self.collection.find_one({"key": key})
         if not result:
             return None
-        return self.item_type.from_mongo(result)
+        return ApiKey.from_mongo(result)
 
     def update_one(self, item_id: str, updated_item: Category) -> Maybe[Category]:
         result = self.collection.find_one_and_update(
@@ -57,22 +65,24 @@ class MongoConnector(BaseConnector):
             return result
         return self.item_type.from_mongo(result)
 
-    def tag_one(self, item_id: str, tag: str) -> Category:
+    def tag_one(self, item_id: str, tag: str) -> Maybe[Category]:
         # If the tag already exists, a new one is not added
         result = self.collection.find_one_and_update(by_id(item_id), {"$addToSet": {"tags": tag}})
+        if result is None:
+            return result
         return self.item_type.from_mongo(result)
 
-    def delete_one(self, item_id: str) -> int:
-        return self.collection.delete_one(by_id(item_id)).deleted_count
+    def delete_one(self, item_id: str) -> bool:
+        return self.collection.delete_one(by_id(item_id)).deleted_count > 0
 
     def delete_all(self) -> int:
         return self.collection.delete_many({}).deleted_count
 
-    def get_today_events(self) -> Maybe[List[Category]]:
+    def get_today_events(self) -> List[Category]:
         today = date.today()
         result = self.collection.find({"month": today.strftime("%m"), "day": today.strftime("%d")})
         if result is None:
-            return None
+            return []
         return [self.item_type.from_mongo(event) for event in result]
 
     def cascade_tag_delete(self, tag_name: str) -> None:
