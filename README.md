@@ -49,7 +49,6 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 ## TODO
 
-- Code cleanup + comments (docstrings, etc)
 - Lots of places where MongoConnector is used explicitly
   - Need to figure out a way to make that generic so it can be configured
   - Can this be configured through a config file?
