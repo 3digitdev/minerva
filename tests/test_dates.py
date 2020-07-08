@@ -185,6 +185,11 @@ class DatesTests(CategoriesTestsBase):
         dates = self.assertFieldIn(response, field="dates")
         self.assertEqual(len(dates), 2, f"Expected 2 dates in response -- {response}")
 
+    def test_get_all_dates_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/dates?page=2&count=1"), 200)
+        dates = self.assertFieldIn(response, field="dates")
+        self.assertEqual(len(dates), 1, f"Expected just 1 date in response -- {response}")
+
     def test_get_single_date(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/dates/{self.ids_to_cleanup[0]}"), 200

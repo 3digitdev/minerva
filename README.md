@@ -49,7 +49,6 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
 
 ## TODO
 
-- Add pagination query params to "get all" endpoints
 - Code cleanup + comments (docstrings, etc)
 - Figure out how to build Mongo so it adds indices automatically on creation
   - Commands:

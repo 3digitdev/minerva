@@ -62,7 +62,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_create_employment(self):
         response = self.verify_response_code(
             self.app.post(
-                "/api/v1/employment",
+                "/api/v1/employments",
                 json={
                     "title": "Senior Intern",
                     "salary": "1",
@@ -93,7 +93,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_create_employment_missing_required_field(self):
         self.verify_response_code(
             self.app.post(
-                "/api/v1/employment",
+                "/api/v1/employments",
                 json={
                     "salary": "1",
                     "employer": {
@@ -121,7 +121,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_create_employment_missing_optional_field_is_empty(self):
         response = self.verify_response_code(
             self.app.post(
-                "/api/v1/employment",
+                "/api/v1/employments",
                 json={
                     "title": "Senior Intern",
                     "salary": "1",
@@ -157,25 +157,34 @@ class EmploymentsTests(CategoriesTestsBase):
         )
 
     def test_create_employment_missing_body(self):
-        self.verify_response_code(self.app.post("/api/v1/employment"), 400)
+        self.verify_response_code(self.app.post("/api/v1/employments"), 400)
 
     # endregion
 
     # region Read
     def test_get_all_employments(self):
-        response = self.verify_response_code(self.app.get("/api/v1/employment"), 200)
+        response = self.verify_response_code(self.app.get("/api/v1/employments"), 200)
         employments = self.assertFieldIn(response, field="employments")
         self.assertEqual(len(employments), 2, f"Expected 2 employments in response -- {response}")
 
+    def test_get_all_employments_paginated(self):
+        response = self.verify_response_code(
+            self.app.get("/api/v1/employments?page=2&count=1"), 200
+        )
+        employments = self.assertFieldIn(response, field="employments")
+        self.assertEqual(
+            len(employments), 1, f"Expected just 1 employment in response -- {response}"
+        )
+
     def test_get_single_employment(self):
         response = self.verify_response_code(
-            self.app.get(f"/api/v1/employment/{self.ids_to_cleanup[0]}"), 200
+            self.app.get(f"/api/v1/employments/{self.ids_to_cleanup[0]}"), 200
         )
         title = self.assertFieldIn(response, field="title")
         self.assertEqual(title, "Senior Intern", f"Unexpected title '{title}'")
 
     def test_get_single_nonexistent_employment(self):
-        self.verify_response_code(self.app.get("/api/v1/employment/5f0113731c990801cc5d3240"), 404)
+        self.verify_response_code(self.app.get("/api/v1/employments/5f0113731c990801cc5d3240"), 404)
 
     # endregion
 
@@ -183,7 +192,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_update_employment(self):
         response = self.verify_response_code(
             self.app.put(
-                f"/api/v1/employment/{self.ids_to_cleanup[0]}",
+                f"/api/v1/employments/{self.ids_to_cleanup[0]}",
                 json={
                     "title": "Junior Intern",
                     "salary": self.test_employments[0]["salary"],
@@ -220,7 +229,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_update_employment_extra_field(self):
         self.verify_response_code(
             self.app.put(
-                f"/api/v1/employment/{self.ids_to_cleanup[0]}",
+                f"/api/v1/employments/{self.ids_to_cleanup[0]}",
                 json={
                     "title": "Junior Intern",
                     "salary": "1",
@@ -250,7 +259,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_update_employment_missing_required_field(self):
         self.verify_response_code(
             self.app.put(
-                f"/api/v1/employment/{self.ids_to_cleanup[0]}",
+                f"/api/v1/employments/{self.ids_to_cleanup[0]}",
                 json={
                     "salary": "1",
                     "employer": {
@@ -278,7 +287,7 @@ class EmploymentsTests(CategoriesTestsBase):
     def test_update_employment_missing_optional_field_is_empty(self):
         response = self.verify_response_code(
             self.app.put(
-                f"/api/v1/employment/{self.ids_to_cleanup[0]}",
+                f"/api/v1/employments/{self.ids_to_cleanup[0]}",
                 json={
                     "title": "Junior Intern",
                     "salary": "1",
@@ -342,12 +351,12 @@ class EmploymentsTests(CategoriesTestsBase):
                 )
             )
             self.ids_to_cleanup.append(new_id)
-        response = self.verify_response_code(self.app.delete(f"/api/v1/employment/{new_id}"), 204)
+        response = self.verify_response_code(self.app.delete(f"/api/v1/employments/{new_id}"), 204)
         self.assertEqual(response, {}, f"Expected empty response -- {response}")
 
     def test_delete_nonexistent_employment(self):
         self.verify_response_code(
-            self.app.delete("/api/v1/employment/5f0113731c990801cc5d3240"), 404
+            self.app.delete("/api/v1/employments/5f0113731c990801cc5d3240"), 404
         )
 
     # endregion

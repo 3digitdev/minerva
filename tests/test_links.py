@@ -68,6 +68,11 @@ class LinksTests(CategoriesTestsBase):
         links = self.assertFieldIn(response, field="links")
         self.assertEqual(len(links), 2, f"Expected 2 links in response -- {response}")
 
+    def test_get_all_links_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/links?page=2&count=1"), 200)
+        links = self.assertFieldIn(response, field="links")
+        self.assertEqual(len(links), 1, f"Expected just 1 link in response -- {response}")
+
     def test_get_single_link(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/links/{self.ids_to_cleanup[0]}"), 200

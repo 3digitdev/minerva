@@ -103,6 +103,11 @@ class LoginsTests(CategoriesTestsBase):
         logins = self.assertFieldIn(response, field="logins")
         self.assertEqual(len(logins), 2, f"Expected 2 logins in response -- {response}")
 
+    def test_get_all_logins_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/logins?page=2&count=1"), 200)
+        logins = self.assertFieldIn(response, field="logins")
+        self.assertEqual(len(logins), 1, f"Expected just 1 login in response -- {response}")
+
     def test_get_single_login(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/logins/{self.ids_to_cleanup[0]}"), 200

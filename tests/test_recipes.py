@@ -116,6 +116,11 @@ class RecipesTests(CategoriesTestsBase):
         recipes = self.assertFieldIn(response, field="recipes")
         self.assertEqual(len(recipes), 2, f"Expected 2 recipes in response -- {response}")
 
+    def test_get_all_recipes_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/recipes?page=2&count=1"), 200)
+        recipes = self.assertFieldIn(response, field="recipes")
+        self.assertEqual(len(recipes), 1, f"Expected just 1 recipe in response -- {response}")
+
     def test_get_single_recipe(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/recipes/{self.ids_to_cleanup[0]}"), 200

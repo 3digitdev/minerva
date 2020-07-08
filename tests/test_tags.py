@@ -37,6 +37,11 @@ class TagsTests(CategoriesTestsBase):
         tags = self.assertFieldIn(response, field="tags")
         self.assertEqual(len(tags), 2, f"Expected 2 tags in response -- {response}")
 
+    def test_get_all_tags_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/tags?page=2&count=1"), 200)
+        tags = self.assertFieldIn(response, field="tags")
+        self.assertEqual(len(tags), 1, f"Expected just 1 tag in response -- {response}")
+
     def test_get_single_tag(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/tags/{self.ids_to_cleanup[0]}"), 200

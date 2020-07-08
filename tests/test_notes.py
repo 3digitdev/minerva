@@ -60,6 +60,11 @@ class NotesTests(CategoriesTestsBase):
         notes = self.assertFieldIn(response, field="notes")
         self.assertEqual(len(notes), 2, f"Expected 2 notes in response -- {response}")
 
+    def test_get_all_notes_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/notes?page=2&count=1"), 200)
+        notes = self.assertFieldIn(response, field="notes")
+        self.assertEqual(len(notes), 1, f"Expected just 1 note in response -- {response}")
+
     def test_get_single_note(self):
         response = self.verify_response_code(
             self.app.get(f"/api/v1/notes/{self.ids_to_cleanup[0]}"), 200

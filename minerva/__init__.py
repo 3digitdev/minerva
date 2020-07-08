@@ -72,7 +72,16 @@ class Route:
                 self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
             with MongoConnector(self.category, is_test=self.is_test) as db:
                 if request.method == "GET":
-                    found_items = db.find_all()
+                    try:
+                        page_num = int(request.args.get("page", 1))
+                        num_per_page = int(request.args.get("count", 10))
+                    except ValueError:
+                        raise BadRequestError("'page' and 'count' must be integers if provided")
+                    no_limit = request.args.get("all", None)
+                    if no_limit:
+                        found_items = db.find_all_no_limit()
+                    else:
+                        found_items = db.find_all(page=page_num, count=num_per_page)
                     resp_body = {self.multi: [i.__dict__() for i in found_items]}
                     info(
                         request,
@@ -264,22 +273,22 @@ def create_app(test_config=None):
     # endregion
 
     # region HOUSING HISTORY ROUTES
-    @app.route(f"{URL_BASE}/housing", methods=["GET", "POST"])
+    @app.route(f"{URL_BASE}/housings", methods=["GET", "POST"])
     def all_housing():
         return Route.build(Housing, is_test).all_items()
 
-    @app.route(f"{URL_BASE}/housing/<string:house_id>", methods=["GET", "PUT", "DELETE"])
+    @app.route(f"{URL_BASE}/housings/<string:house_id>", methods=["GET", "PUT", "DELETE"])
     def house_by_id(house_id: str):
         return Route.build(Housing, is_test).item_by_id(item_id=house_id)
 
     # endregion
 
     # region EMPLOYMENT HISTORY ROUTES
-    @app.route(f"{URL_BASE}/employment", methods=["GET", "POST"])
+    @app.route(f"{URL_BASE}/employments", methods=["GET", "POST"])
     def all_employment():
         return Route.build(Employment, is_test).all_items()
 
-    @app.route(f"{URL_BASE}/employment/<string:job_id>", methods=["GET", "PUT", "DELETE"])
+    @app.route(f"{URL_BASE}/employments/<string:job_id>", methods=["GET", "PUT", "DELETE"])
     def employment_by_id(job_id: str):
         return Route.build(Employment, is_test).item_by_id(item_id=job_id)
 

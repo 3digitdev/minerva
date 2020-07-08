@@ -52,7 +52,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_create_housing(self):
         response = self.verify_response_code(
             self.app.post(
-                "/api/v1/housing",
+                "/api/v1/housings",
                 json={
                     "address": {
                         "number": "123",
@@ -78,7 +78,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_create_housing_missing_required_field(self):
         self.verify_response_code(
             self.app.post(
-                "/api/v1/housing",
+                "/api/v1/housings",
                 json={
                     "address": {
                         "number": "123",
@@ -102,7 +102,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_create_housing_missing_optional_field_is_empty(self):
         response = self.verify_response_code(
             self.app.post(
-                "/api/v1/housing",
+                "/api/v1/housings",
                 json={
                     "address": {
                         "number": "123",
@@ -133,12 +133,12 @@ class HousingsTests(CategoriesTestsBase):
         )
 
     def test_create_housing_missing_body(self):
-        self.verify_response_code(self.app.post("/api/v1/housing"), 400)
+        self.verify_response_code(self.app.post("/api/v1/housings"), 400)
 
     def test_create_housing_invalid_month(self):
         self.verify_response_code(
             self.app.post(
-                "/api/v1/housing",
+                "/api/v1/housings",
                 json={
                     "address": {
                         "number": "123",
@@ -163,7 +163,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_create_housing_invalid_year(self):
         self.verify_response_code(
             self.app.post(
-                "/api/v1/housing",
+                "/api/v1/housings",
                 json={
                     "address": {
                         "number": "123",
@@ -188,19 +188,24 @@ class HousingsTests(CategoriesTestsBase):
 
     # region Read
     def test_get_all_housings(self):
-        response = self.verify_response_code(self.app.get("/api/v1/housing"), 200)
+        response = self.verify_response_code(self.app.get("/api/v1/housings"), 200)
         housings = self.assertFieldIn(response, field="housings")
         self.assertEqual(len(housings), 2, f"Expected 2 housings in response -- {response}")
 
+    def test_get_all_housings_paginated(self):
+        response = self.verify_response_code(self.app.get("/api/v1/housings?page=2&count=1"), 200)
+        housings = self.assertFieldIn(response, field="housings")
+        self.assertEqual(len(housings), 1, f"Expected just 1 housing in response -- {response}")
+
     def test_get_single_housing(self):
         response = self.verify_response_code(
-            self.app.get(f"/api/v1/housing/{self.ids_to_cleanup[0]}"), 200
+            self.app.get(f"/api/v1/housings/{self.ids_to_cleanup[0]}"), 200
         )
         start_month = self.assertFieldIn(response, field="start_month")
         self.assertEqual(start_month, "1", f"Unexpected start_month '{start_month}'")
 
     def test_get_single_nonexistent_housing(self):
-        self.verify_response_code(self.app.get("/api/v1/housing/5f0113731c990801cc5d3240"), 404)
+        self.verify_response_code(self.app.get("/api/v1/housings/5f0113731c990801cc5d3240"), 404)
 
     # endregion
 
@@ -208,7 +213,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_update_housing(self):
         response = self.verify_response_code(
             self.app.put(
-                f"/api/v1/housing/{self.ids_to_cleanup[0]}",
+                f"/api/v1/housings/{self.ids_to_cleanup[0]}",
                 json={
                     "address": {
                         "number": "123",
@@ -240,7 +245,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_update_housing_extra_field(self):
         self.verify_response_code(
             self.app.put(
-                f"/api/v1/housing/{self.ids_to_cleanup[0]}",
+                f"/api/v1/housings/{self.ids_to_cleanup[0]}",
                 json={
                     "address": {
                         "number": "123",
@@ -265,7 +270,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_update_housing_missing_required_field(self):
         self.verify_response_code(
             self.app.put(
-                f"/api/v1/housing/{self.ids_to_cleanup[0]}",
+                f"/api/v1/housings/{self.ids_to_cleanup[0]}",
                 json={
                     "address": {
                         "number": "123",
@@ -288,7 +293,7 @@ class HousingsTests(CategoriesTestsBase):
     def test_update_housing_missing_optional_field_is_empty(self):
         response = self.verify_response_code(
             self.app.put(
-                f"/api/v1/housing/{self.ids_to_cleanup[0]}",
+                f"/api/v1/housings/{self.ids_to_cleanup[0]}",
                 json={
                     "address": {
                         "number": "123",
@@ -340,10 +345,10 @@ class HousingsTests(CategoriesTestsBase):
                 )
             )
             self.ids_to_cleanup.append(new_id)
-        response = self.verify_response_code(self.app.delete(f"/api/v1/housing/{new_id}"), 204)
+        response = self.verify_response_code(self.app.delete(f"/api/v1/housings/{new_id}"), 204)
         self.assertEqual(response, {}, f"Expected empty response -- {response}")
 
     def test_delete_nonexistent_housing(self):
-        self.verify_response_code(self.app.delete("/api/v1/housing/5f0113731c990801cc5d3240"), 404)
+        self.verify_response_code(self.app.delete("/api/v1/housings/5f0113731c990801cc5d3240"), 404)
 
     # endregion
