@@ -3,6 +3,7 @@ from enum import Enum
 
 JsonData = Dict[str, Any]
 T = TypeVar("T")
+# I prefer to use the term "Maybe", so just wrapping Optional
 Maybe = Optional[T]
 
 

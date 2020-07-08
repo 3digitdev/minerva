@@ -42,6 +42,8 @@ def month_validator(instance, attr, value) -> None:
 
 def year_validator(instance, attr, value) -> None:
     if value == "":
+        # This is here so that the year can be an "optional"
+        # value without needing a default integer value.
         return
     try:
         int(value)

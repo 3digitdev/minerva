@@ -1,4 +1,9 @@
 class HttpError(Exception):
+    """
+    This is a handy wrapper to allow easy handling of various HTTP Status Codes.
+    Making exceptions that come from this one will make code far more readable.
+    """
+
     def __init__(self, message, code):
         self.code = code
         self.msg = message

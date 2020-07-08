@@ -6,6 +6,17 @@ from ..helpers.types import JsonData
 
 @attr.s
 class ApiKey(Category):
+    """
+    These are not a standard "category" in that they do not have a set of
+    CRUD endpoints, but they are still stored/retrieved from the DB.
+
+    This is used for super-simple authentication of the user hitting the API.
+
+    There are probably far better and more secure ways to do this, and PRs are
+    welcome if you are better at this than me.  Given that this is a personal project
+    in its outset, I won't be putting much effort into this...yet.
+    """
+
     key: str = attr.ib()
     user: str = attr.ib()
     id: str = attr.ib(default="")

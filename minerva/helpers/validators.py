@@ -4,6 +4,15 @@ from .exceptions import BadRequestError
 
 
 def validate_tag_list(instance, attr, value) -> None:
+    """
+    This is a helper function for making sure that when you add a Tag to a Category
+    record, there is a matching Tag object in the datastore already.  Also performs
+    basic type validation.  This is a method as defined by `attr` for "Validators".
+    :param instance: IGNORED
+    :param attr: IGNORED
+    :param value: The value to be validated.  Should be a list of strings
+    :return: N/A
+    """
     if isinstance(value, list):
         with MongoConnector(Tag) as db:
             all_tags = [tag.name for tag in db.find_all_no_limit() if isinstance(tag, Tag)]

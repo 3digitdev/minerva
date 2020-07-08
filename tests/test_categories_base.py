@@ -8,9 +8,13 @@ from minerva.helpers.types import Maybe, JsonData
 from minerva import create_app, Category, MongoConnector
 
 
-# Base method for testing all the routes --
-# Helps avoid having to rebuild the Flask app in each test file
 class CategoriesTestsBase(unittest.TestCase):
+    """
+    Base method for testing all the routes.
+    Helps avoid having to rebuild the Flask app in each test file.
+    TODO:  This needs to stop using MongoConnector explicitly!
+    """
+
     item_type: Maybe[Type[Category]]
 
     def setUp(self) -> None:
@@ -28,8 +32,8 @@ class CategoriesTestsBase(unittest.TestCase):
 
     # --- Helpers to save typing --- #
     def verify_response_code(self, response: Response, expected: int = 200):
-        # If the response body is empty, this is needed
         try:
+            # If the response body is empty, this is needed
             body = response.json
         except BadRequest:
             body = {}

@@ -2,6 +2,10 @@ from .types import JsonData, Maybe, LogLevel
 from ..connectors.mongo import MongoConnector
 from ..categories.logs import Log
 
+"""
+TODO:  These functions need to stop using the MongoConnector explicitly!
+"""
+
 
 def base_msg(request, message: str):
     return f"{request.method} {str(request.url_rule)} -- {message}"
@@ -29,4 +33,4 @@ def info(request, user: str, message: str, details: Maybe[JsonData] = None):
 
 def debug(request, user: str, message: str, details: Maybe[JsonData] = None):
     with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Debug, message, details or {})
+        logger.add_log(user, LogLevel.Debug, base_msg(request, message), details or {})

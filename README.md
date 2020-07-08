@@ -55,6 +55,7 @@ Interfaces, app integrations (browser extensions etc.), and other things can (an
   - Can this be configured through a config file?
     - It might be cleaner to do this by just having them change the code...
     - IDEA:  Maybe they pass an Enum to a generic Connector!
+- Possibly look into separating out _stored_ objects from other Category children (e.g. `Address`)
 - Figure out how to build Mongo so it adds indices automatically on creation
   - Commands:
     - `db.tags.createIndex({"name": 1}, {unique: true})`

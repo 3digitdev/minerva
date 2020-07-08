@@ -23,12 +23,19 @@ from .helpers.authorization import validate_key
 from .helpers.logging import info, error
 
 URL_BASE = "/api/v1"
-TESTING = False
+# Note that not all Category subtypes are here.  This is only the Category subtypes
+# that will have API endpoints created for them!
 ALL_TYPES = [Date, Employment, Housing, Link, Login, Note, Recipe, Tag]
 
 
 @attr.s
 class Hooks:
+    """
+    This is used as a helper for the Route object to allow certain methods to
+    be given that run at certain times.  This is almost CERTAINLY a code smell
+    on my part.  See the Route for notes on my thoughts for that.
+    """
+
     # Used for cascading tags deletion
     after_delete: Callable[[Category], None] = attr.ib(default=lambda x: None)
     # Used for cascading tags updates
@@ -36,12 +43,20 @@ class Hooks:
 
 
 class Route:
+    """
+    TODO:  Re-evaluate the Route object and see if its worth it to abstract that much.
+    This thing is a bit weird, but it handles a ton of boilerplate for super-basic
+    CRUD endpoint creation for any given Category object.
+    """
+
     def __init__(self, cat: Type[Category], is_test: bool, hooks: JsonData = {}):
-        self.single: str = str(cat.__name__.lower())
-        self.multi: str = self.single + "s"
+        self.single: str = str(cat.__name__.lower())  # Object name as a string ("Date" -> "date")
+        self.multi: str = self.single + "s"  # used for endpoint path building
         self.category: Type[Category] = cat
-        self.is_test = is_test
-        self.api_key = ApiKey("", "TEST_USER") if is_test else None
+        self.is_test = is_test  # Delineates whether we are running the Flask API in "testing" mode
+        self.api_key = (
+            ApiKey("", "TEST_USER") if is_test else None
+        )  # Unit tests don't need an API key
         try:
             self.hooks = Hooks(**hooks)
         except Exception as e:
@@ -49,16 +64,34 @@ class Route:
 
     @classmethod
     def build(cls, cat: Type[Category], is_test: bool, hooks: JsonData = {}) -> "Route":
+        """
+        This is a builder-pattern-like method to allow for some method chaining down below
+        :param cat: The type of Category being built
+        :param is_test: Whether Flask is in "testing" mode
+        :param hooks: Any hooks to apply
+        :return: The new Route object (for method chaining)
+        """
         return cls(cat, is_test, hooks)
 
     def item_not_found(self, item_id: str) -> Response:
+        """
+        Helper function to reduce magic string repetition for a common error type
+        :param item_id: The ID that didn't match the datastore entries
+        :return: A Flask Response object
+        """
         return make_response(
             {"error": f"Could not find a {str(self.category.__name__)} with the ID '{item_id}'"},
             404,
         )
 
     @staticmethod
-    def log_http_error(api_key: Maybe[ApiKey], e: HttpError):
+    def log_http_error(api_key: Maybe[ApiKey], e: HttpError) -> None:
+        """
+        Logging helper function for any given error that gets thrown
+        :param api_key: The API key for the user that called the endpoint that errored out
+        :param e: The error object to be logged
+        :return: N/A
+        """
         error(
             request,
             user=api_key.user if api_key else "UNKNOWN_USER",
@@ -66,7 +99,13 @@ class Route:
             details={"error": e.__class__.__name__},
         )
 
-    def all_items(self):
+    def all_items(self) -> Response:
+        """
+        A function that manages the "all" endpoints -- /objects
+        GET:  Get the (possibly paginated) list of objects of a given type
+        POST:  Create a new instance of an object of a given type
+        :return: The Flask Response object after the endpoint is called
+        """
         try:
             if not self.is_test:
                 self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
@@ -109,7 +148,15 @@ class Route:
             Route.log_http_error(self.api_key, e)
             return make_response({"error": e.msg}, e.code)
 
-    def item_by_id(self, item_id: str):
+    def item_by_id(self, item_id: str) -> Response:
+        """
+        A function that manages the "by ID" endpoints -- /objects/<object_od>
+        GET:  Get a single object of a given type by ID
+        PUT:  Update a single object of a given type by ID with values
+        DELETE:  Delete a single object of a given type by ID
+        :param item_id: The unique ID of the object to handle
+        :return: The Flask Response object after the endpoint is called
+        """
         try:
             if not self.is_test:
                 self.api_key: ApiKey = validate_key(request.headers.get("x-api-key", None))
@@ -163,6 +210,11 @@ class Route:
 
 
 def create_app(test_config=None):
+    """
+    Standard wrapper function for building the Flask API
+    :param test_config: A test config as defined by Flask
+    :return: The Flask App object
+    """
     app = Flask(__name__, instance_relative_config=True)
     if test_config is None:
         # load the instance config, if it exists, when not testing
