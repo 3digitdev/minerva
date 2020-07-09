@@ -1,6 +1,6 @@
 from ..connectors.mongo import MongoConnector
 from ..categories.api_keys import ApiKey
-from .types import Maybe
+from .custom_types import Maybe
 from .exceptions import UnauthorizedError
 
 

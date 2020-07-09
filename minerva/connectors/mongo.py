@@ -10,7 +10,7 @@ from ..categories.api_keys import ApiKey
 from .base_connector import BaseConnector
 from ..categories.logs import Log
 from ..categories.category import Category
-from ..helpers.types import JsonData, Maybe, LogLevel
+from ..helpers.custom_types import JsonData, Maybe, LogLevel
 
 
 def by_id(obj_id: str) -> JsonData:

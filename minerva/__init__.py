@@ -18,7 +18,7 @@ from .categories.tags import Tag
 from .connectors.mongo import MongoConnector
 from .categories.notes import Note
 from .helpers.exceptions import HttpError, BadRequestError, NotFoundError, InternalServerError
-from .helpers.types import Maybe, JsonData
+from .helpers.custom_types import Maybe, JsonData
 from .helpers.authorization import validate_key
 from .helpers.logging import info, error
 

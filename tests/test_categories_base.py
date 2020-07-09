@@ -4,7 +4,7 @@ from typing import Type
 from flask import Response
 from werkzeug.exceptions import BadRequest
 
-from minerva.helpers.types import Maybe, JsonData
+from minerva.helpers.custom_types import Maybe, JsonData
 from minerva import create_app, Category, MongoConnector
 
 

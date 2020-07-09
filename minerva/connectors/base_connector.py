@@ -4,7 +4,7 @@ from typing import List, Type
 from ..categories.api_keys import ApiKey
 from ..categories.logs import Log
 from ..categories.category import Category
-from ..helpers.types import JsonData, Maybe, LogLevel
+from ..helpers.custom_types import JsonData, Maybe, LogLevel
 
 
 class BaseConnector(metaclass=ABCMeta):

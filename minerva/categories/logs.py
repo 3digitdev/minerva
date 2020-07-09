@@ -1,7 +1,7 @@
 import attr
 
 from .category import Category
-from ..helpers.types import JsonData, LogLevel
+from ..helpers.custom_types import JsonData, LogLevel
 
 
 @attr.s

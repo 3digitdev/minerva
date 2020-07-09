@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import List, Type
 
 from ..helpers.exceptions import BadRequestError
-from ..helpers.types import JsonData
+from ..helpers.custom_types import JsonData
 
 
 class Category(metaclass=ABCMeta):

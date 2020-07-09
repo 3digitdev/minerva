@@ -3,7 +3,7 @@ from typing import List
 import attr
 
 from .category import Category
-from ..helpers.types import JsonData
+from ..helpers.custom_types import JsonData
 from ..helpers.validators import validate_tag_list
 
 

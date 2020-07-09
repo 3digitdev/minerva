@@ -1,4 +1,4 @@
-from .types import JsonData, Maybe, LogLevel
+from .custom_types import JsonData, Maybe, LogLevel
 from ..connectors.mongo import MongoConnector
 from ..categories.logs import Log
 
