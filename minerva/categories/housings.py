@@ -4,9 +4,8 @@ import attr
 
 from .addresses import Address, address_converter
 from .category import Category
-from .dates import month_validator, year_validator
 from ..helpers.custom_types import JsonData
-from ..helpers.validators import validate_tag_list
+from ..helpers.validators import validate_tag_list, month_validator, year_validator
 
 
 @attr.s

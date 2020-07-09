@@ -3,10 +3,10 @@ from typing import List, Union
 import attr
 
 from .addresses import Address, address_converter
-from .dates import month_validator, year_validator, num_padding
 from .category import Category
 from ..helpers.custom_types import JsonData
-from ..helpers.validators import validate_tag_list
+from ..helpers.validators import validate_tag_list, month_validator, year_validator
+from ..helpers.converters import num_padding
 
 
 def employer_converter(employer: Union["Employer", JsonData]) -> "Employer":
