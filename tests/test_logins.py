@@ -1,4 +1,3 @@
-from minerva import MongoConnector
 from minerva.categories.logins import Login
 from .test_categories_base import CategoriesTestsBase
 
@@ -27,7 +26,7 @@ class LoginsTests(CategoriesTestsBase):
                 "tags": [],
             },
         ]
-        with MongoConnector(Login, is_test=True) as db:
+        with self.datastore(Login, config=self.config) as db:
             for login in self.test_logins:
                 self.ids_to_cleanup.append(db.create(Login.from_request(login)))
 
@@ -204,7 +203,7 @@ class LoginsTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_login(self):
-        with MongoConnector(Login, is_test=True) as db:
+        with self.datastore(Login, config=self.config) as db:
             new_id = db.create(
                 Login.from_request(
                     {

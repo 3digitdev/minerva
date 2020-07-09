@@ -1,36 +1,35 @@
-from .custom_types import JsonData, Maybe, LogLevel
-from ..connectors.mongo import MongoConnector
-from ..categories.logs import Log
+from typing import Type
 
-"""
-TODO:  These functions need to stop using the MongoConnector explicitly!
-"""
+from .custom_types import JsonData, Maybe, LogLevel
+from ..connectors.base_connector import BaseConnector
+from ..categories.logs import Log
 
 
 def base_msg(request, message: str):
     return f"{request.method} {str(request.url_rule)} -- {message}"
 
 
-def fatal(request, user: str, message: str, details: Maybe[JsonData] = None):
-    with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Fatal, base_msg(request, message), details or {})
+class Logger:
+    def __init__(self, datastore: Type[BaseConnector], config: JsonData):
+        self.datastore = datastore
+        self.config = config
 
+    def fatal(self, request, user: str, message: str, details: Maybe[JsonData] = None):
+        with self.datastore(Log, self.config) as logger:
+            logger.add_log(user, LogLevel.Fatal, base_msg(request, message), details or {})
 
-def error(request, user: str, message: str, details: Maybe[JsonData] = None):
-    with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Error, base_msg(request, message), details or {})
+    def error(self, request, user: str, message: str, details: Maybe[JsonData] = None):
+        with self.datastore(Log, self.config) as logger:
+            logger.add_log(user, LogLevel.Error, base_msg(request, message), details or {})
 
+    def warn(self, request, user: str, message: str, details: Maybe[JsonData] = None):
+        with self.datastore(Log, self.config) as logger:
+            logger.add_log(user, LogLevel.Warn, base_msg(request, message), details or {})
 
-def warn(request, user: str, message: str, details: Maybe[JsonData] = None):
-    with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Warn, base_msg(request, message), details or {})
+    def info(self, request, user: str, message: str, details: Maybe[JsonData] = None):
+        with self.datastore(Log, self.config) as logger:
+            logger.add_log(user, LogLevel.Info, base_msg(request, message), details or {})
 
-
-def info(request, user: str, message: str, details: Maybe[JsonData] = None):
-    with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Info, base_msg(request, message), details or {})
-
-
-def debug(request, user: str, message: str, details: Maybe[JsonData] = None):
-    with MongoConnector(Log, is_test=False) as logger:
-        logger.add_log(user, LogLevel.Debug, base_msg(request, message), details or {})
+    def debug(self, request, user: str, message: str, details: Maybe[JsonData] = None):
+        with self.datastore(Log, self.config) as logger:
+            logger.add_log(user, LogLevel.Debug, base_msg(request, message), details or {})

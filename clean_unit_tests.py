@@ -9,7 +9,9 @@ from minerva.categories.notes import Note
 from minerva.categories.recipes import Recipe
 from minerva.categories.tags import Tag
 from minerva.categories.logs import Log
-from minerva.connectors.mongo import MongoConnector
+from minerva.connectors.base_connector import BaseConnector
+from minerva.connectors.datastore_factory import DatastoreFactory
+from minerva.helpers.config_loader import load_config
 
 collections = [Date, Employment, Housing, Link, Login, Note, Recipe, Tag]
 
@@ -24,14 +26,19 @@ if __name__ == "__main__":
     print("------------------------------------")
     print("--- Cleaning Unit Test Artifacts ---")
     print("------------------------------------")
+    config = load_config()
+    # Not loading the Flask config, need to add this manually
+    config["TESTING"] = True
+    datastore = DatastoreFactory.build(config)
+    print(datastore)
     for type_name in collections:
-        with MongoConnector(item_type=type_name, is_test=True) as db:
+        with datastore(item_type=type_name, config=config) as db:
             deleted = db.delete_all()
             print(f"Deleted {deleted} records for {type_name.__name__}s")
     print("---------------------")
     print("--- Cleaning Logs ---")
     print("---------------------")
-    with MongoConnector(item_type=Log, is_test=False) as db:
+    with datastore(item_type=Log, config=config) as db:
         logs = db.find_all_no_limit()
         to_delete = []
         for log in logs:

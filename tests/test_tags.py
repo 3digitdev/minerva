@@ -1,4 +1,3 @@
-from minerva import MongoConnector, Note
 from minerva.categories.tags import Tag
 from .test_categories_base import CategoriesTestsBase
 
@@ -8,7 +7,7 @@ class TagsTests(CategoriesTestsBase):
         self.item_type = Tag
         super().setUp()
         self.test_tags = [{"name": "First"}, {"name": "Second"}]
-        with MongoConnector(Tag, is_test=True) as db:
+        with self.datastore(Tag, config=self.config) as db:
             for tag in self.test_tags:
                 self.ids_to_cleanup.append(db.create(Tag.from_request(tag)))
 
@@ -80,7 +79,7 @@ class TagsTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_tag(self):
-        with MongoConnector(Tag, is_test=True) as db:
+        with self.datastore(Tag, config=self.config) as db:
             new_id = db.create(Tag.from_request({"name": "TEST_DELETE_TAG"}))
             self.ids_to_cleanup.append(new_id)
         response = self.verify_response_code(self.app.delete(f"/api/v1/tags/{new_id}"), 204)

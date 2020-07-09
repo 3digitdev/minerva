@@ -1,6 +1,5 @@
 from datetime import date
 
-from minerva import MongoConnector
 from minerva.categories.dates import Date
 from .test_categories_base import CategoriesTestsBase
 
@@ -29,7 +28,7 @@ class DatesTests(CategoriesTestsBase):
                 "tags": [],
             },
         ]
-        with MongoConnector(Date, is_test=True) as db:
+        with self.datastore(Date, config=self.config) as db:
             for date in self.test_dates:
                 self.ids_to_cleanup.append(db.create(Date.from_request(date)))
 
@@ -284,7 +283,7 @@ class DatesTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_date(self):
-        with MongoConnector(Date, is_test=True) as db:
+        with self.datastore(Date, config=self.config) as db:
             new_id = db.create(
                 Date.from_request(
                     {
@@ -313,7 +312,7 @@ class DatesTests(CategoriesTestsBase):
 
     def test_get_today_dates_found_one(self):
         today = date.today()
-        with MongoConnector(Date, is_test=True) as db:
+        with self.datastore(Date, config=self.config) as db:
             new_id = db.create(
                 Date.from_request(
                     {

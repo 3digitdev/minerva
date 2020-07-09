@@ -4,8 +4,11 @@ from typing import Type
 from flask import Response
 from werkzeug.exceptions import BadRequest
 
+from minerva import create_app
 from minerva.helpers.custom_types import Maybe, JsonData
-from minerva import create_app, Category, MongoConnector
+from minerva.helpers.config_loader import load_config
+from minerva.connectors.datastore_factory import DatastoreFactory
+from minerva.categories.category import Category
 
 
 class CategoriesTestsBase(unittest.TestCase):
@@ -19,6 +22,9 @@ class CategoriesTestsBase(unittest.TestCase):
 
     def setUp(self) -> None:
         app = create_app({"TESTING": True, "DEBUG": False})
+        self.config = load_config()
+        self.config["TESTING"] = True
+        self.datastore = DatastoreFactory.build(self.config)
         self.app = app.test_client()
         self.assertIsNotNone(
             self.item_type, "You forgot to instantiate the item type before calling the parent init"
@@ -26,7 +32,7 @@ class CategoriesTestsBase(unittest.TestCase):
         self.ids_to_cleanup = []
 
     def tearDown(self) -> None:
-        with MongoConnector(self.item_type, is_test=True) as db:
+        with self.datastore(self.item_type, config=self.config) as db:
             for item_id in self.ids_to_cleanup:
                 db.delete_one(item_id)
 
@@ -49,7 +55,7 @@ class CategoriesTestsBase(unittest.TestCase):
         return response[field]
 
     def assertItemExists(self, item_id: str, *, item_type: Type[Category]) -> Category:
-        with MongoConnector(self.item_type, is_test=True) as db:
+        with self.datastore(self.item_type, config=self.config) as db:
             item = db.find_one(item_id)
             self.assertIsNotNone(
                 item,

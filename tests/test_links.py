@@ -1,4 +1,3 @@
-from minerva import MongoConnector
 from minerva.categories.links import Link
 from .test_categories_base import CategoriesTestsBase
 
@@ -11,7 +10,7 @@ class LinksTests(CategoriesTestsBase):
             {"name": "First Link", "url": "google.com", "notes": ["a", "b", "c"], "tags": []},
             {"name": "Second Link", "url": "ddg.com", "notes": [], "tags": []},
         ]
-        with MongoConnector(Link, is_test=True) as db:
+        with self.datastore(Link, config=self.config) as db:
             for link in self.test_links:
                 self.ids_to_cleanup.append(db.create(Link.from_request(link)))
 
@@ -147,7 +146,7 @@ class LinksTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_link(self):
-        with MongoConnector(Link, is_test=True) as db:
+        with self.datastore(Link, config=self.config) as db:
             new_id = db.create(
                 Link.from_request({"name": "TEST_DELETE_LINK", "url": "", "notes": [], "tags": []})
             )

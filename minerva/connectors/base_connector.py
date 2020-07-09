@@ -13,16 +13,16 @@ class BaseConnector(metaclass=ABCMeta):
     functions in a way that makes sense best for that storage mechanism should do just fine.
     """
 
-    def __init__(self, item_type: Type[Category], is_test=False) -> None:
+    def __init__(self, item_type: Type[Category], config: JsonData) -> None:
         """
         Constructor for the connector.  Do any additional setup needed for config etc. here
         :param item_type: The type of "Category" object
-        :param is_test: Whether or not this is being created during tests.  It is recommended
-                        that this control whether or not you write to either a new table or a
-                        different database entirely to keep unit test garbage out of production
+        :param config: Data loaded from 'minerva_config.json'
         """
         self.item_type = item_type
-        self.is_test = is_test
+        self.is_test = config.get("TESTING", False)
+        self.host = config.get("host")
+        self.port = config.get("port")
 
     @abstractmethod
     def __enter__(self) -> "BaseConnector":

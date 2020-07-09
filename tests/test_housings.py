@@ -1,4 +1,3 @@
-from minerva import MongoConnector
 from minerva.categories.housings import Housing
 from .test_categories_base import CategoriesTestsBase
 
@@ -41,7 +40,7 @@ class HousingsTests(CategoriesTestsBase):
                 "tags": [],
             },
         ]
-        with MongoConnector(Housing, is_test=True) as db:
+        with self.datastore(Housing, config=self.config) as db:
             for housing in self.test_housings:
                 self.ids_to_cleanup.append(db.create(Housing.from_request(housing)))
 
@@ -323,7 +322,7 @@ class HousingsTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_housing(self):
-        with MongoConnector(Housing, is_test=True) as db:
+        with self.datastore(Housing, config=self.config) as db:
             new_id = db.create(
                 Housing.from_request(
                     {

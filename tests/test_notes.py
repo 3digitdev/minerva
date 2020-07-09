@@ -1,4 +1,3 @@
-from minerva import MongoConnector
 from minerva.categories.notes import Note
 from .test_categories_base import CategoriesTestsBase
 
@@ -11,7 +10,7 @@ class NotesTests(CategoriesTestsBase):
             {"contents": "First Note", "url": "google.com", "tags": []},
             {"contents": "Second Note", "url": "ddg.com", "tags": []},
         ]
-        with MongoConnector(Note, is_test=True) as db:
+        with self.datastore(Note, config=self.config) as db:
             for note in self.test_notes:
                 self.ids_to_cleanup.append(db.create(Note.from_request(note)))
 
@@ -141,7 +140,7 @@ class NotesTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_note(self):
-        with MongoConnector(Note, is_test=True) as db:
+        with self.datastore(Note, config=self.config) as db:
             new_id = db.create(
                 Note.from_request({"contents": "TEST_DELETE_NOTE", "url": "", "tags": []})
             )

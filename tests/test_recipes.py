@@ -1,4 +1,3 @@
-from minerva import MongoConnector
 from minerva.categories.recipes import Recipe, RecipeType
 from .test_categories_base import CategoriesTestsBase
 
@@ -34,7 +33,7 @@ class RecipesTests(CategoriesTestsBase):
                 "tags": [],
             },
         ]
-        with MongoConnector(Recipe, is_test=True) as db:
+        with self.datastore(Recipe, config=self.config) as db:
             for recipe in self.test_recipes:
                 self.ids_to_cleanup.append(db.create(Recipe.from_request(recipe)))
 
@@ -223,7 +222,7 @@ class RecipesTests(CategoriesTestsBase):
 
     # region Delete
     def test_delete_recipe(self):
-        with MongoConnector(Recipe, is_test=True) as db:
+        with self.datastore(Recipe, config=self.config) as db:
             new_id = db.create(
                 Recipe.from_request(
                     {

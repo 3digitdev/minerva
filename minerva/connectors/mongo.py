@@ -19,14 +19,14 @@ def by_id(obj_id: str) -> JsonData:
 
 
 class MongoConnector(BaseConnector):
-    def __init__(self, item_type: Type[Category], is_test=False) -> None:
-        super().__init__(item_type, is_test)
+    def __init__(self, item_type: Type[Category], config: JsonData) -> None:
+        super().__init__(item_type, config)
         self.coll_name = item_type.collection()
-        if is_test:
+        if self.is_test:
             self.coll_name = f"unittest_{self.coll_name}"
 
     def __enter__(self) -> "MongoConnector":
-        self.client: MongoClient = MongoClient("mongodb://localhost:27017/")
+        self.client: MongoClient = MongoClient(f"mongodb://{self.host}:{self.port}/")
         self.db: Database = self.client.minerva
         self.collection: Collection = self.db[self.coll_name]
         return self
