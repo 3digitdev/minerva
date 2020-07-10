@@ -1,5 +1,3 @@
-from typing import List
-
 from minerva.categories.dates import Date
 from minerva.categories.employments import Employment
 from minerva.categories.housings import Housing
