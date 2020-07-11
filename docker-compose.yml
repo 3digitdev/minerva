@@ -4,6 +4,6 @@ services:
     container_name: minerva:latest
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: docker/mongo/Dockerfile
     ports:
       - "5000:5000"
