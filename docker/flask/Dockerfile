@@ -11,3 +11,4 @@ ENTRYPOINT [""]
 
 
 # docker run --detach --name=minerva-api -p 5000:5000 minerva-api
+# https://docs.docker.com/engine/reference/builder/

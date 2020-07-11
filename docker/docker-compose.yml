@@ -3,7 +3,9 @@ services:
   minerva:
     container_name: minerva:latest
     build:
-      context: ./
-      dockerfile: docker/mongo/Dockerfile
+      context: ..
+      dockerfile: mongo/Dockerfile
     ports:
       - "5000:5000"
+
+# https://docs.docker.com/compose/compose-file/

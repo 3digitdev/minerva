@@ -11,3 +11,4 @@ ENTRYPOINT [""]
 
 
 # docker run --detach --name=minerva-db -v ~/
+# https://docs.docker.com/engine/reference/builder/
