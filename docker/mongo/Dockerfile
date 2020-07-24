@@ -1,19 +1,13 @@
 FROM mongo:latest
 
-# Copy Minerva files
 WORKDIR /usr/src/minerva
+
 COPY initMongo.js ./
+COPY setupMongoDocker.sh /usr/local/bin/
 
-# General setup
-CMD mongo initMongo.js && \
-	apt-get -y update && \
-	apt-get install -y systemd && \
-	apt-get install -y logrotate
+RUN chmod +x /usr/local/bin/setupMongoDocker.sh
 
-# TODO
-# WHAT DO I DO HERE?
-#ENTRYPOINT [""]
-
+ENTRYPOINT ["setupMongoDocker.sh"]
 
 # docker run --detach --name=minerva-db -v ~/
 # https://docs.docker.com/engine/reference/builder/

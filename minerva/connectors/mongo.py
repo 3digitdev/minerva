@@ -1,15 +1,17 @@
-from typing import Type, List
+import os
 
+from typing import Type, List
 from bson import ObjectId
 from pymongo import MongoClient, ReturnDocument
 from pymongo.collection import Collection
 from pymongo.database import Database
 from datetime import date, datetime
 
-from ..categories.api_keys import ApiKey
 from .base_connector import BaseConnector
-from ..categories.logs import Log
+from ..categories.api_keys import ApiKey
 from ..categories.category import Category
+from ..categories.logs import Log
+from ..helpers.exceptions import InternalServerError
 from ..helpers.custom_types import JsonData, Maybe, LogLevel
 
 
@@ -26,7 +28,10 @@ class MongoConnector(BaseConnector):
             self.coll_name = f"unittest_{self.coll_name}"
 
     def __enter__(self) -> "MongoConnector":
-        self.client: MongoClient = MongoClient("mongodb://localhost:27017/")
+        mongo_url = os.getenv("MONGO_URL")
+        if mongo_url == "":
+            raise InternalServerError("MONGO_URL not set correctly")
+        self.client: MongoClient = MongoClient(mongo_url)
         self.db: Database = self.client.minerva
         self.collection: Collection = self.db[self.coll_name]
         return self
