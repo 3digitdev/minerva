@@ -1,4 +1,4 @@
-version: "1"
+version: "3"
 services:
   minerva-db:
     image: mongo:latest
@@ -14,9 +14,7 @@ services:
     depends_on:
       - 'minerva-db'
     build:
-      context: ""
-      # does this need to be "docker/flask/Dockerfile" because of "context: .."?
-      dockerfile: flask/Dockerfile
+      dockerfile: Dockerfile
       image: minerva-api:latest
     environment:
       - MONGO_URL=mongodb://minerva-db:27017/
