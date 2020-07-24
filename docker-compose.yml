@@ -14,7 +14,7 @@ services:
     depends_on:
       - 'minerva-db'
     build:
-      context: ..
+      context: ""
       # does this need to be "docker/flask/Dockerfile" because of "context: .."?
       dockerfile: flask/Dockerfile
       image: minerva-api:latest
