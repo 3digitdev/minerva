@@ -5,7 +5,6 @@
 
 init:
 	@python3 -m pip install -r requirements.txt
-	@python3 -m init_mongo
 
 test:
 	@python3 -m unittest -vb tests/*.py
@@ -20,7 +19,9 @@ lint:
 	@python3 -m black .
 
 flask_run:
-	@export FLASK_APP=minerva && flask run
+	export FLASK_APP=minerva && flask run
+
+flask_from_scratch: init flask_run
 
 deploy:
 	docker-compose -f docker-compose.yml build
