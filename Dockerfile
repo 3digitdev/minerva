@@ -1,4 +1,4 @@
-FROM bitnami/python:3.8
+FROM python:3.8
 
 # Copy Minerva files
 WORKDIR /usr/src/app
