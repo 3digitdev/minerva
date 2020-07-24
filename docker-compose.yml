@@ -5,7 +5,9 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=minerva
     volumes:
+      # This will auto-run initMongo.js on startup
       - ./initMongo.js:/docker-entrypoint-initdb.d/initMongo.js:ro
+      # Map the database storage to the host for persistence
       - ./mongo-volume:/data/db
     ports:
       - "27017-27019:27017-27019"
@@ -17,6 +19,7 @@ services:
       dockerfile: Dockerfile
       image: minerva-api:latest
     environment:
+      # Used by flask to connect to other service
       - MONGO_URL=mongodb://minerva-db:27017/
     ports:
       - "5000:5000"
