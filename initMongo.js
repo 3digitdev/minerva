@@ -4,6 +4,7 @@ conn = new Mongo("localhost:27017");
 db = conn.getDB("minerva");
 
 colls = [
+	"api_keys",
     "dates",
     "employments",
     "housings",
