@@ -56,9 +56,7 @@ will) be added, but don't need to be in order to get started with this.
 ## TODO
 
 - Possibly look into separating out _stored_ objects from other Category children (e.g. `Address`)
-- Figure out how to build Mongo so it adds indices automatically on creation
-  - Commands:
-    - `db.tags.createIndex({"name": 1}, {unique: true})`
-    - `db.access_logs.createIndex({"created_at": 1}, {expireAfterSeconds: 604800})`
-  - Needed for Docker image eventually
- - Create valid Docker image for the entire project
+- Script for generating/inserting API key for usage
+  - How to best do this...?
+- Deploy app to spare Raspberry Pi
+  - Make sure the app is a startup script!
