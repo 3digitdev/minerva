@@ -372,7 +372,7 @@ def create_app(test_config=None):
                     user=api_key.user if api_key else "TEST_USER",
                     message=f"Found {len(logs)} logs",
                 )
-                return make_response({"logs": logs}, 200)
+                return make_response({"logs": [log.__dict__() for log in logs]}, 200)
 
     # endregion
 

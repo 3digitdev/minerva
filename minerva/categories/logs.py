@@ -1,12 +1,14 @@
 import attr
 
+from datetime import datetime
+
 from .category import Category
 from ..helpers.custom_types import JsonData, LogLevel
 
 
 @attr.s
 class Log(Category):
-    created_at = attr.ib()
+    created_at: datetime = attr.ib()
     user: str = attr.ib()
     level: LogLevel = attr.ib(converter=LogLevel.from_str)
     message: str = attr.ib()
@@ -17,7 +19,7 @@ class Log(Category):
     def __dict__(self) -> JsonData:
         return {
             "_id": self.id,
-            "created_at": self.created_at,
+            "created_at": self.created_at.isoformat(),
             "user": self.user,
             "level": str(self.level),
             "message": self.message,
