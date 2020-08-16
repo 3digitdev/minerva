@@ -12,6 +12,7 @@ class EmploymentsTests(CategoriesTestsBase):
                 "title": "Senior Intern",
                 "salary": "1",
                 "employer": {
+                    "name": "Google",
                     "address": {
                         "number": "123",
                         "street": "Main St",
@@ -33,6 +34,7 @@ class EmploymentsTests(CategoriesTestsBase):
                 "title": "Junior Intern",
                 "salary": "2",
                 "employer": {
+                    "name": "Facebook",
                     "address": {
                         "number": "456",
                         "street": "Main St",
@@ -67,6 +69,7 @@ class EmploymentsTests(CategoriesTestsBase):
                     "title": "Senior Intern",
                     "salary": "1",
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -97,6 +100,7 @@ class EmploymentsTests(CategoriesTestsBase):
                 json={
                     "salary": "1",
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -126,6 +130,7 @@ class EmploymentsTests(CategoriesTestsBase):
                     "title": "Senior Intern",
                     "salary": "1",
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -197,6 +202,7 @@ class EmploymentsTests(CategoriesTestsBase):
                     "title": "Junior Intern",
                     "salary": self.test_employments[0]["salary"],
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -235,6 +241,7 @@ class EmploymentsTests(CategoriesTestsBase):
                     "salary": "1",
                     "employer": {
                         "address": {
+                            "name": "Google",
                             "number": "123",
                             "street": "Main St",
                             "extra": "APT 456",
@@ -263,6 +270,7 @@ class EmploymentsTests(CategoriesTestsBase):
                 json={
                     "salary": "1",
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -292,6 +300,7 @@ class EmploymentsTests(CategoriesTestsBase):
                     "title": "Junior Intern",
                     "salary": "1",
                     "employer": {
+                        "name": "Google",
                         "address": {
                             "number": "123",
                             "street": "Main St",
@@ -331,6 +340,7 @@ class EmploymentsTests(CategoriesTestsBase):
                         "title": "Test Delete Employment",
                         "salary": "1",
                         "employer": {
+                            "name": "Google",
                             "address": {
                                 "number": "123",
                                 "street": "Main St",

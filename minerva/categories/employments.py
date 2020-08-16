@@ -17,12 +17,14 @@ def employer_converter(employer: Union["Employer", JsonData]) -> "Employer":
 
 @attr.s
 class Employer(Category):
+    name: str = attr.ib()
     address: Address = attr.ib(converter=address_converter)
     phone: str = attr.ib()
     supervisor: str = attr.ib(default="")
 
     def __dict__(self) -> JsonData:
         return {
+            "name": self.name,
             "address": self.address.__dict__(),
             "phone": self.phone,
             "supervisor": self.supervisor,
@@ -30,6 +32,7 @@ class Employer(Category):
 
     def to_json(self) -> JsonData:
         return {
+            "name": self.name,
             "address": self.address.to_json(),
             "phone": self.phone,
             "supervisor": self.supervisor,
@@ -39,6 +42,7 @@ class Employer(Category):
     def from_request(req: JsonData) -> "Employer":
         Employer.verify_request_body(req)
         return Employer(
+            name=req["name"],
             address=Address.from_request(req["address"]),
             phone=req["phone"],
             supervisor=req.get("supervisor", ""),
@@ -48,7 +52,7 @@ class Employer(Category):
     def verify_request_body(body: JsonData) -> None:
         Category.verify_incoming_request(
             body=body,
-            required_fields=["address", "phone"],
+            required_fields=["name", "address", "phone"],
             optional_fields=["supervisor"],
             category=Employer,
         )
