@@ -107,7 +107,7 @@ class Login(Category):
     def verify_request_body(body: JsonData) -> None:
         Category.verify_incoming_request(
             body=body,
-            required_fields=["application", "password"],
+            required_fields=["application", "username", "password"],
             optional_fields=["url", "username", "email", "security_questions", "tags"],
             category=Login,
         )
