@@ -78,6 +78,9 @@ class Category(metaclass=ABCMeta):
                 raise BadRequestError(
                     f"Invalid request -- missing field '{field}' in {category.__name__}"
                 )
+            else:
+                if body[field] is None or body[field] == "":
+                    raise BadRequestError(f"Invalid request -- required field '{field}' is empty")
 
     @staticmethod
     @abstractmethod
