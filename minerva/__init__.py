@@ -231,6 +231,14 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    @app.route(f"{URL_BASE}/items_by_tag/<string:tag>", methods=["GET"])
+    def get_items_by_tag(tag: str):
+        item_map = {}
+        for item_type in ALL_TYPES:
+            with MongoConnector(item_type, is_test) as db:
+                item_map[item_type.__name__] = db.find_all_by_tag(tag)
+        return make_response(item_map, 200)
+
     # region TAG ROUTES
     @app.route(f"{URL_BASE}/tags", methods=["GET", "POST"])
     def all_tags():

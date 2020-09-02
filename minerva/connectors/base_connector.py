@@ -63,6 +63,14 @@ class BaseConnector(metaclass=ABCMeta):
         return NotImplemented
 
     @abstractmethod
+    def find_all_by_tag(self, tag: str) -> List[Category]:
+        """
+        Like find_all_no_limit(), but it filters by the tag provided
+        :return: A list of every object of the specified category that contains the tag provided
+        """
+        return NotImplemented
+
+    @abstractmethod
     def find_one(self, item_id: str) -> Maybe[Category]:
         """
         Find a single "Category" object by its unique ID

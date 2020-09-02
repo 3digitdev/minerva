@@ -50,6 +50,10 @@ class MongoConnector(BaseConnector):
         results = self.collection.find()
         return [self.item_type.from_mongo(item) for item in results]
 
+    def find_all_by_tag(self, tag: str) -> List[Category]:
+        results = self.collection.find({"tags": tag})
+        return [self.item_type.from_mongo(item) for item in results]
+
     def find_one(self, item_id: str) -> Maybe[Category]:
         result = self.collection.find_one(by_id(item_id))
         if not result:
