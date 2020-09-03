@@ -2,7 +2,7 @@ import os
 import attr
 
 from typing import Type, List, Callable
-from flask import Flask, request, make_response, Response
+from flask import Flask, request, make_response, Response, url_for
 from pymongo.errors import DuplicateKeyError
 
 from .categories.category import Category
@@ -231,14 +231,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route(f"{URL_BASE}/items_by_tag/<string:tag>", methods=["GET"])
-    def get_items_by_tag(tag: str):
-        item_map = {}
-        for item_type in ALL_TYPES:
-            with MongoConnector(item_type, is_test) as db:
-                item_map[item_type.__name__] = db.find_all_by_tag(tag)
-        return make_response(item_map, 200)
-
     # region TAG ROUTES
     @app.route(f"{URL_BASE}/tags", methods=["GET", "POST"])
     def all_tags():
@@ -383,5 +375,16 @@ def create_app(test_config=None):
                 return make_response({"logs": [log.__dict__() for log in logs]}, 200)
 
     # endregion
+
+    @app.route(f"{URL_BASE}/tagged/<string:tag>", methods=["GET"])
+    def get_items_by_tag(tag: str):
+        print("TAG: ", tag)
+        item_map = {}
+        for item_type in ALL_TYPES:
+            with MongoConnector(item_type, is_test) as db:
+                item_map[item_type.__name__.lower() + "s"] = []
+                for item in db.find_all_by_tag(tag):
+                    item_map[item_type.__name__.lower() + "s"].append(item.to_json())
+        return make_response(item_map, 200)
 
     return app
