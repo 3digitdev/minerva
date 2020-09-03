@@ -384,7 +384,7 @@ def create_app(test_config=None):
             with MongoConnector(item_type, is_test) as db:
                 item_map[item_type.__name__.lower() + "s"] = []
                 for item in db.find_all_by_tag(tag):
-                    item_map[item_type.__name__.lower() + "s"].append(item.to_json())
+                    item_map[item_type.__name__.lower() + "s"].append(item.__dict__())
         return make_response(item_map, 200)
 
     return app
