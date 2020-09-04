@@ -28,6 +28,8 @@ class RecipeType(str, Enum):
     SideDish = "side dish"
     Casserole = "casserole"
     Appetizer = "appetizer"
+    Drink = "drink"
+    Bread = "bread"
 
     def __str__(self):
         return self.value
@@ -66,7 +68,6 @@ class Recipe(Category):
     ingredients: List[Ingredient] = attr.ib(converter=ingredient_converter)
     instructions: List[str] = attr.ib()
     recipe_type: RecipeType = attr.ib()
-    cooking_style: str = attr.ib(default="")
     url: str = attr.ib(default="")
     source: str = attr.ib(default="")
     notes: List[str] = attr.ib(default=[])
@@ -81,7 +82,6 @@ class Recipe(Category):
             "ingredients": [i.__dict__() for i in self.ingredients],
             "instructions": self.instructions,
             "recipe_type": str(self.recipe_type),
-            "cooking_style": self.cooking_style,
             "url": self.url,
             "source": self.source,
             "notes": self.notes,
@@ -94,7 +94,6 @@ class Recipe(Category):
             "ingredients": [i.to_json() for i in self.ingredients],
             "instructions": self.instructions,
             "recipe_type": str(self.recipe_type),
-            "cooking_style": self.cooking_style,
             "url": self.url,
             "source": self.source,
             "notes": self.notes,
@@ -109,7 +108,6 @@ class Recipe(Category):
             ingredients=[Ingredient.from_request(i) for i in req["ingredients"]],
             instructions=req["instructions"],
             recipe_type=req["recipe_type"],
-            cooking_style=req.get("cooking_style", ""),
             url=req.get("url", ""),
             source=req.get("source", ""),
             notes=req.get("notes", []),
@@ -121,7 +119,7 @@ class Recipe(Category):
         Category.verify_incoming_request(
             body=body,
             required_fields=["name", "ingredients", "instructions", "recipe_type"],
-            optional_fields=["cooking_style", "url", "source", "notes", "tags"],
+            optional_fields=["url", "source", "notes", "tags"],
             category=Recipe,
         )
         for ingredient in body.get("ingredients", []):
