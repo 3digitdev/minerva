@@ -14,7 +14,6 @@ class Date(Category):
     day: str = attr.ib(validator=day_validator, converter=num_padding)
     month: str = attr.ib(validator=month_validator, converter=num_padding)
     year: str = attr.ib(default="", validator=year_validator)
-    subject: str = attr.ib(default="")
     notes: List[str] = attr.ib(default=[])
     # ---
     tags: List[str] = attr.ib(default=[], validator=validate_tag_list)
@@ -27,7 +26,6 @@ class Date(Category):
             "day": self.day,
             "month": self.month,
             "year": self.year,
-            "subject": self.subject,
             "notes": self.notes,
             "tags": self.tags,
         }
@@ -38,7 +36,6 @@ class Date(Category):
             "day": self.day,
             "month": self.month,
             "year": self.year,
-            "subject": self.subject,
             "notes": self.notes,
             "tags": self.tags,
         }
@@ -51,7 +48,6 @@ class Date(Category):
             day=req["day"],
             month=req["month"],
             year=req.get("year", ""),
-            subject=req.get("subject", ""),
             notes=req.get("notes", []),
             tags=req.get("tags", []),
         )
@@ -61,7 +57,7 @@ class Date(Category):
         Category.verify_incoming_request(
             body=body,
             required_fields=["name", "day", "month"],
-            optional_fields=["year", "subject", "notes", "tags"],
+            optional_fields=["year", "notes", "tags"],
             category=Date,
         )
 

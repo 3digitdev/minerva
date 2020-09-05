@@ -15,19 +15,10 @@ class DatesTests(CategoriesTestsBase):
                 "day": "25",
                 "month": "4",
                 "year": "1924",
-                "subject": "Mom and Dad",
                 "notes": ["don't forget", "buy them a gift"],
                 "tags": [],
             },
-            {
-                "name": "A Birthday",
-                "day": "16",
-                "month": "2",
-                "year": "",
-                "subject": "",
-                "notes": [],
-                "tags": [],
-            },
+            {"name": "A Birthday", "day": "16", "month": "2", "year": "", "notes": [], "tags": [],},
         ]
         with MongoConnector(Date, is_test=True) as db:
             for date in self.test_dates:
@@ -46,7 +37,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "4",
                     "year": "1924",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -64,7 +54,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "4",
                     "year": "1924",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -80,7 +69,6 @@ class DatesTests(CategoriesTestsBase):
                     "name": "An Anniversary",
                     "day": "25",
                     "month": "4",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -105,7 +93,6 @@ class DatesTests(CategoriesTestsBase):
                     "name": "An Anniversary",
                     "day": "75",  # Day out of 1-31 range
                     "month": "4",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -121,7 +108,6 @@ class DatesTests(CategoriesTestsBase):
                     "name": "An Anniversary",
                     "day": "5",
                     "month": "34",  # Month out of 1-12 range
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -138,7 +124,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "5",
                     "month": "4",
                     "year": "1924",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -162,7 +147,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "11",
                     "year": "1924",
-                    "subject": "Mom and Dad",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -212,7 +196,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "4",
                     "year": self.test_dates[0]["year"],
-                    "subject": "Sister",
                     "notes": ["don't forget", "buy them a gift"],
                     "tags": [],
                 },
@@ -235,7 +218,6 @@ class DatesTests(CategoriesTestsBase):
                     "day": "25",
                     "month": "4",
                     "year": "2016",
-                    "subject": "Sister",
                     "notes": ["don't forget", "buy them a gift"],
                     "foo": "bar",  # Extra field, should throw error
                     "tags": [],
@@ -248,14 +230,7 @@ class DatesTests(CategoriesTestsBase):
         self.verify_response_code(
             self.app.put(
                 f"/api/v1/dates/{self.ids_to_cleanup[0]}",
-                json={
-                    "day": "25",
-                    "month": "4",
-                    "year": "",
-                    "subject": "",
-                    "notes": [],
-                    "tags": [],
-                },
+                json={"day": "25", "month": "4", "year": "", "notes": [], "tags": [],},
             ),
             400,
         )
@@ -264,14 +239,7 @@ class DatesTests(CategoriesTestsBase):
         response = self.verify_response_code(
             self.app.put(
                 f"/api/v1/dates/{self.ids_to_cleanup[0]}",
-                json={
-                    "name": "A Bat Mitzvah",
-                    "day": "25",
-                    "month": "4",
-                    "subject": "",
-                    "notes": [],
-                    "tags": [],
-                },
+                json={"name": "A Bat Mitzvah", "day": "25", "month": "4", "notes": [], "tags": [],},
             ),
             200,
         )
@@ -292,7 +260,6 @@ class DatesTests(CategoriesTestsBase):
                         "day": "25",
                         "month": "4",
                         "year": "1924",
-                        "subject": "Mom and Dad",
                         "notes": ["don't forget", "buy them a gift"],
                         "tags": [],
                     }
@@ -321,7 +288,6 @@ class DatesTests(CategoriesTestsBase):
                         "day": today.strftime("%d"),
                         "month": today.strftime("%m"),
                         "year": "1924",
-                        "subject": "Mom and Dad",
                         "notes": ["don't forget", "buy them a gift"],
                         "tags": [],
                     }
